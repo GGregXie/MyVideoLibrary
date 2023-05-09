@@ -1,11 +1,14 @@
 ﻿using com.gestapoghost.entertainment.entity;
 using com.gestapoghost.entertainment.service;
+using System;
 using System.Collections.Generic;
 
 namespace com.gestapoghost.entertainment.viewmodel
 {
     public class ScenePageViewModel
     {
+        public String ScraperUrl { get; set; }
+
         private List<Clip> _Scenes;
 
         public List<Clip> Scenes

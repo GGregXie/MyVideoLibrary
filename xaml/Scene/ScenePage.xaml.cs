@@ -15,6 +15,9 @@ namespace com.gestapoghost.entertainment.xaml.scene
 {
     public partial class ScenePage : Page
     {
+
+        public ScenePageViewModel _ScenePageViewModel;
+
         public ScenePage()
         {
             InitializeComponent();
@@ -22,7 +25,7 @@ namespace com.gestapoghost.entertainment.xaml.scene
 
         public void InitPage()
         {
-            SceneListBox.DataContext = new ScenePageViewModel((Application.Current as App).Movie);
+            DataContext = _ScenePageViewModel = new ScenePageViewModel((Application.Current as App).Movie);
             if (SceneListBox.Items.Count > 0) SceneListBox.ScrollIntoView(SceneListBox.Items[0]);
         }
 
@@ -31,6 +34,11 @@ namespace com.gestapoghost.entertainment.xaml.scene
             (Application.Current as App).Scene = null;
             (Application.Current as App).SceneWindow.InitWindow();
             (Application.Current as App).SceneWindow.Show();
+        }
+
+        private void ScraperButton_Click(object sender, RoutedEventArgs e)
+        {
+            ScraperService.GetScraperService().ScraperMovie((Application.Current as App).Company, (Application.Current as App).Series,(Application.Current as App).Movie, _ScenePageViewModel.ScraperUrl);
         }
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -42,14 +50,12 @@ namespace com.gestapoghost.entertainment.xaml.scene
 
         }
 
-        
         private void ThumbMenuItem_Click(object sender, RoutedEventArgs e)
         {
             (Application.Current as App).Scene = (sender as MenuItem).Tag as Clip;
             (Application.Current as App).SceneThumb.InitWindow();
             (Application.Current as App).SceneThumb.Show();
         }
-
 
         private void UpdateMenuItem_Click(object sender, RoutedEventArgs e)
         {

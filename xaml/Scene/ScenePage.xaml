@@ -16,6 +16,8 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <TextBox x:Name="SearchText" Margin="0,0,10,0" Height="40" FontSize="16" FontWeight="Bold" Width="200"  Text="{Binding Path=ScraperUrl, Mode=TwoWay}" />
+                <Button x:Name="ScraperButton" Margin="0,0,10,0" Width="100" Height="40" Content="拉取" Click="ScraperButton_Click"></Button>
                 <Button x:Name="NewSceneButton" Margin="0,0,10,0" Width="100" Height="40" Content="新建" Click="NewSceneButton_Click"></Button>
             </StackPanel>
         </Grid>

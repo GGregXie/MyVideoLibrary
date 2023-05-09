@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using OpenQA.Selenium.Interactions;
+using System.Collections.Generic;
 
 namespace com.gestapoghost.entertainment.service
 {
@@ -2319,6 +2320,96 @@ namespace com.gestapoghost.entertainment.service
             }
         }
 
+        public void ScraperMovie(Company _Company, Series _Series, Movie _Movie, String webString)
+        {
+
+            Console.WriteLine(_Company.Name);
+
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument document;
+            HtmlNodeCollection clipNodes;
+            HtmlNodeCollection imageNodes;
+            ArrayList clips = new ArrayList();
+            int resultNum = 0;
+            int totalNum = 0;
+
+            if (webString.Contains("www.ragingstallion.com"))
+            {
+                if(!File.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html"))
+                { 
+                    StartChrome();
+                    driver.Url = webString;
+                    Thread.Sleep(10000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title);
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html", driver.PageSource);
+                    QuitChrome();
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                totalNum = clipNodes.Count;
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipTitle = "";
+                    string clipImgUrl = "";
+                    string clipUrl = "";
+                    string clipDate = "";
+                    string clipDescription = "";
+                    resultNum++;
+
+
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
+                    else Console.WriteLine("clipTitle is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim();
+                    else Console.WriteLine("clipImgUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.ragingstallion.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                    else Console.WriteLine("clipUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]") != null) clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]").InnerText;
+                    else Console.WriteLine("clipDate is null");
+
+                    if (clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a") != null)
+                    {
+                        List<string> _Actors = new List<string>();
+                        foreach (HtmlNode actorNode in clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a")) _Actors.Add(actorNode.InnerText);
+                        clipDescription += string.Join(", ", _Actors);
+                        clipDescription += "\n\n";
+                    }
+                    else Console.WriteLine("Star is null");
+
+                    if (!File.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html"))
+                    {
+                        StartChrome();
+                        driver.Url = clipUrl;
+                        Thread.Sleep(10000);
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
+                        QuitChrome();
+                    }
+                    HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
+                    else Console.WriteLine("clipDescription is null");
+                    clips.Add(new string[] { (totalNum - resultNum + 1).ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                }
+                ConsoleWrite(webString, clips);
+                
+
+                MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (dr == MessageBoxResult.OK)
+                {
+                    ScraperMovieScenes(_Company, _Series, _Movie, clips);
+                    MessageBox.Show("111");
+                }
+                else
+                {
+                    MessageBox.Show("222");
+                }
+
+
+
+            }
+        }
+
+
+
         private void FromUrlToHtml(string webUrl, string htmlUrl)
         {
             driver.Url = webUrl;
@@ -2550,6 +2641,34 @@ namespace com.gestapoghost.entertainment.service
             }
         }
 
+        private void ScraperMovieScenes(Company _Company, Series _Series, Movie _Movie, ArrayList clips)
+        {
+            foreach (string[] clip in clips)
+            {
+                try
+                {
+                    Clip _Scene = new Clip();
+
+                    _Scene.Scene = int.Parse(clip[0]);
+                    _Scene.Title = clip[1];
+                    _Scene.ClipUrl = clip[3];
+                    _Scene.Pic = FromUrlToImage(clip[2].Replace("&amp;", "&"), @"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + clip[0] + ".jpg");
+                    _Scene.Description = clip[5];
+                    if (string.Equals(clip[4], "")) _Scene.Date = DateTime.Parse("1980-1-1");
+                    else _Scene.Date = DateTime.Parse(clip[4]);
+                    ObservableCollection<Actor> _Actors = new ObservableCollection<Actor>();
+                    ClipService.GetClipService().CreateOrUpdateClip(_Scene, _Company, _Series, _Movie, _Actors);
+
+                    Console.WriteLine(clip[0] + " / " + clip[1] + " / " + clip[2] + " / " + clip[3] + " / " + clip[4] + " / " + clip[5] + "--> success");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(clip[0] + " / " + clip[1] + " / " + clip[2] + " / " + clip[3] + " / " + clip[4] + " / " + clip[5] + "--> error");
+                }
+            }
+        }
+        
+
         private string[] ProxyFromWebUrl(string webUrl)
         {
             if (webUrl.Contains("www.kristenbjorn.com"))
@@ -2578,9 +2697,10 @@ namespace com.gestapoghost.entertainment.service
             if (driver == null)
             {
                 ChromeOptions options = new ChromeOptions();
+                options.AddArgument("--headless");
                 options.AddArgument("--ignore-certificate-errors");
                 options.AddArgument("--user-data-dir=C:/Program Tools/Download Tools/lrts.me/懒人听书下载工具/Cache");
-                options.AddArgument("--window-size=1440,900");
+                options.AddArgument("--window-size=1920,2000");
                 //options.AddArgument("--headless");
                 options.AddUserProfilePreference("profile", new { default_content_setting_values = new { images = 2 } });
                 driver = new ChromeDriver(System.Environment.CurrentDirectory, options);
