@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="com.gestapoghost.entertainment.xaml.usercontrol.LoadingImageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Storyboard x:Key="waiting" Name="waiting">
+            <DoubleAnimation Storyboard.TargetName="SpinnerRotate" Storyboard.TargetProperty="(RotateTransform.Angle)" From="0" To="359" Duration="0:0:02" RepeatBehavior="Forever" />
+        </Storyboard>
+    </UserControl.Resources>
+    <Image Name="image" Source="pack://Application:,,,/Resources/Images/LoadingImage.png"  RenderTransformOrigin="0.5,0.5" Stretch="None" Loaded="Image_Loaded">
+        <Image.RenderTransform>
+            <RotateTransform x:Name="SpinnerRotate" Angle="0" />
+        </Image.RenderTransform>
+    </Image>
+</UserControl>

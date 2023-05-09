@@ -1,0 +1,69 @@
+﻿<Controls:MetroWindow x:Class="MyMovie.xaml.Comic.ComicWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:u="clr-namespace:com.gestapoghost.entertainment.xaml.usercontrol"
+                      xmlns:t="clr-namespace:com.gestapoghost.entertainment.tools"
+                      Title="MainWindow"
+                      Height="320"
+                      Width="520">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="270" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <u:LoadingImageControl />
+                <Image x:Name="ClipImage" Margin="0,20,0,0" Width="180" Height="270" t:ImageDecoder.Source="{Binding Path=Comic.Pic, Mode=TwoWay}" />
+            </Grid>
+            <Grid Grid.Column="1" Height="270" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="35" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <TextBlock x:Name="CompanySeries" Margin="0, 20, 0, 0" VerticalAlignment="Top" FontSize="20" Text="" />
+                </Grid>
+                <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="ClipScene" FontSize="16" FontWeight="Bold" Width="40" Text="{Binding Path=Comic.Scene, Mode=TwoWay}"/>
+                        <TextBox Margin="10,0,0,0" x:Name="ClipTitle" FontSize="16" FontWeight="Bold" Width="230" Text="{Binding Path=Comic.Title, Mode=TwoWay}"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="2">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="0, 0, 10, 0" Content="加载图片" Width="60" Click="LoadImageButton_Click" />
+                        <Button Margin="0, 0, 10, 0" Content="添加文件" Width="60" Click="AddVideoFileButton_Click"/>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="295" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel  Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" FontSize="14" Text="路径：" Width="50"  />
+                        <TextBox x:Name="FilePathText" VerticalAlignment="Center" FontSize="14" Text="{Binding Path=Comic.FilePath, Mode=TwoWay }"  Width="245" />
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="4">
+                    <TextBox Margin="-10, 10, 0, 0" x:Name="ClipDescription" Height="80" Width="280" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Text="{Binding Path=Comic.Description, Mode=TwoWay}" />
+                </Grid>
+                <Grid Grid.Row="5" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="5,5,10,5" Content="保存" Width="100" Click="SaveButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Controls:MetroWindow>
