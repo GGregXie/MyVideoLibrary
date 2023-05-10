@@ -2256,7 +2256,17 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (string.Equals(webString, "Eric Videos"))
             {
-                document = new HtmlWeb().Load(@"D:\VideoTemp\html\1.html");
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.ericvideos.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html"))
+                {
+                    StartChrome();
+                    driver.Url = "https://www.ericvideos.com/EN/vod/1/page1";
+                    Thread.Sleep(10000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.ericvideos.com\")) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.ericvideos.com\");
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ericvideos.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html", driver.PageSource);
+                    QuitChrome();
+                }
+
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ericvideos.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html");
 
 
                 //https://www.ericvideos.com/EN/vod/1/page1
@@ -2333,7 +2343,11 @@ namespace com.gestapoghost.entertainment.service
             int resultNum = 0;
             int totalNum = 0;
 
-            if (webString.Contains("www.ragingstallion.com"))
+            if (webString == null)
+            {
+                Console.WriteLine("webString is null");
+            }
+            else if (webString.Contains("www.ragingstallion.com"))
             {
                 if(!File.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html"))
                 { 
@@ -2359,7 +2373,7 @@ namespace com.gestapoghost.entertainment.service
 
                     if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
                     else Console.WriteLine("clipTitle is null");
-                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim();
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim() + "?width=1280&amp;height=720&amp;format=jpg";
                     else Console.WriteLine("clipImgUrl is null");
                     if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.ragingstallion.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
                     else Console.WriteLine("clipUrl is null");
@@ -2405,6 +2419,10 @@ namespace com.gestapoghost.entertainment.service
 
 
 
+            }
+            else
+            {
+                Console.WriteLine("webString is error");
             }
         }
 
@@ -2697,7 +2715,7 @@ namespace com.gestapoghost.entertainment.service
             if (driver == null)
             {
                 ChromeOptions options = new ChromeOptions();
-                options.AddArgument("--headless");
+                //options.AddArgument("--headless");
                 options.AddArgument("--ignore-certificate-errors");
                 options.AddArgument("--user-data-dir=C:/Program Tools/Download Tools/lrts.me/懒人听书下载工具/Cache");
                 options.AddArgument("--window-size=1920,2000");
