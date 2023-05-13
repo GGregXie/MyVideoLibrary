@@ -29,7 +29,7 @@
             </Grid>
             <Grid Grid.Column="1">
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                    <TextBox x:Name="SearchText" Margin="0,0,10,0" Height="40" FontSize="16" FontWeight="Bold" Width="100"  Text="{Binding Path=Search, Mode=TwoWay}" />
+                    <TextBox x:Name="SearchText" Margin="0,0,10,0" Height="40" FontSize="16" FontWeight="Bold" Width="400"  Text="{Binding Path=Search, Mode=TwoWay}" />
                     <Button x:Name="JFFVideoFileButton" Margin="0,0,10,0" Width="100" Height="40" Content="JFF更新VideoFile" Click="JFFVideoButton_Click"></Button>
                     <Button x:Name="JFFPhotoButton" Margin="0,0,10,0" Width="100" Height="40" Content="JFF只下图片" Click="JFFPhotoButton_Click"></Button>
                     <Button x:Name="SearchButton" Margin="0,0,10,0" Width="100" Height="40" Content="搜索" Click="SearchButton_Click"></Button>
