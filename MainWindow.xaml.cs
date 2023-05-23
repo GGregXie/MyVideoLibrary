@@ -62,6 +62,14 @@ namespace com.gestapoghost.entertainment.xaml.main
             MainFrame.Content = (Application.Current as App).CompanyPage;
         }
 
+        private void DVDButton_Click(object sender, RoutedEventArgs e)
+        {
+            (Application.Current as App).CompanyTypeId = 10;
+            (Application.Current as App).Actor = null;
+            (Application.Current as App).CompanyPage.InitPage();
+            MainFrame.Content = (Application.Current as App).CompanyPage;
+        }
+
         private void ClipButton_Click(object sender, RoutedEventArgs e)
         {
             (Application.Current as App).CompanyTypeId = 2;
@@ -193,7 +201,6 @@ namespace com.gestapoghost.entertainment.xaml.main
                 int allCount = 0;
                 DirectoryInfo rootnsp = new DirectoryInfo(@"Y:\Roms\Games\NSP");
                 FileInfo[] fileinfosnsp = rootnsp.GetFiles("*.*");
-
 
                 DirectoryInfo rootxci = new DirectoryInfo(@"Y:\Roms\Games\XCI");
                 FileInfo[] fileinfosxci = rootxci.GetFiles("*.*");
@@ -332,6 +339,7 @@ namespace com.gestapoghost.entertainment.xaml.main
                 ClearFileButton.Visibility = Visibility.Visible;
                 UpdateButton.Visibility = Visibility.Visible;
                 VideoInfoUpdateButton.Visibility = Visibility.Visible;
+                DVDsButton.Visibility = Visibility.Visible;
             }
             else
             {

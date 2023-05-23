@@ -25,6 +25,7 @@
                     <Button x:Name="GobackButton" Margin="10, 0, 0, 0" Width="40" Height="40" Content="←"    Click="GobackButton_Click" Style="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}" />
                     <Button x:Name="GoonButton"   Margin="10, 0, 0, 0" Width="40" Height="40" Content="→"    Click="GoonButton_Click"   Style="{DynamicResource MahApps.Metro.Styles.MetroCircleButtonStyle}" />
                     <Button x:Name="IndexButton"  Margin="10, 0, 0, 0" Content="首页" Width="100" Height="40" Click="IndexButton_Click"/>
+                    <Button x:Name="DVDsButton"  Margin="10, 0, 0, 0" Content="DVD" Width="100" Height="40" Click="DVDButton_Click" Visibility="Hidden"/>
                     <Button x:Name="FilmsButton"  Margin="10, 0, 0, 0" Content="电影" Width="100" Height="40" Click="FilmButton_Click" Visibility="Hidden"/>
                     <Button x:Name="ClipsButton"  Margin="10, 0, 0, 0" Content="短片" Width="100" Height="40" Click="ClipButton_Click" Visibility="Hidden"/>
                     <Button x:Name="XhamsterButton"  Margin="10, 0, 0, 0" Content="Xhamster" Width="100" Height="40" Click="XhamsterButton_Click" Visibility="Hidden"/>

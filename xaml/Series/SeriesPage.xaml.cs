@@ -57,9 +57,11 @@ namespace com.gestapoghost.entertainment.xaml.series
                 //else
                 //{
                     (Application.Current as App).Series = (sender as Grid).Tag as Series;
-                    if ((Application.Current as App).CompanyTypeId == 1 || (Application.Current as App).CompanyTypeId == 3)
-                    {
-                        (Application.Current as App).MoviePage.InitPage();
+                    if ((Application.Current as App).CompanyTypeId == 1
+                    || (Application.Current as App).CompanyTypeId == 3
+                    || (Application.Current as App).CompanyTypeId == 10)
+                {
+                    (Application.Current as App).MoviePage.InitPage();
                         (Application.Current as App).MainFrame.Content = (Application.Current as App).MoviePage;
                     }
                     else if ((Application.Current as App).CompanyTypeId == 2 || 

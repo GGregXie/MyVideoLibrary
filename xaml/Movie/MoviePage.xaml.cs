@@ -101,7 +101,7 @@ namespace com.gestapoghost.entertainment.xaml.movie
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 (Application.Current as App).Movie = (sender as Grid).Tag as Movie;
-                if ((Application.Current as App).CompanyTypeId == 1)
+                if ((Application.Current as App).CompanyTypeId == 1 || (Application.Current as App).CompanyTypeId == 10)
                 {
                     (Application.Current as App).ScenePage.InitPage();
                     (Application.Current as App).MainFrame.Content = (Application.Current as App).ScenePage;

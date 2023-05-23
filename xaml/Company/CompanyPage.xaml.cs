@@ -56,7 +56,9 @@ namespace com.gestapoghost.entertainment.xaml.company
                 }
                 else
                 {
-                    if ((Application.Current as App).CompanyTypeId == 1 || (Application.Current as App).CompanyTypeId == 3)
+                    if ((Application.Current as App).CompanyTypeId == 1 || 
+                        (Application.Current as App).CompanyTypeId == 3 ||
+                        (Application.Current as App).CompanyTypeId == 10)
                     {
                         (Application.Current as App).MoviePage.InitPage();
                         (Application.Current as App).MainFrame.Content = (Application.Current as App).MoviePage;
