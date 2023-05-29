@@ -2461,14 +2461,13 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (webString.Contains("www.ragingstallion.com"))
             {
-                if(!File.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html"))
-                { 
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html"))
+                {
                     StartChrome();
                     driver.Url = webString;
                     Thread.Sleep(10000);
                     if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title);
                     System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html", driver.PageSource);
-                    QuitChrome();
                 }
                 document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html");
                 clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
@@ -2507,7 +2506,6 @@ namespace com.gestapoghost.entertainment.service
                         driver.Url = clipUrl;
                         Thread.Sleep(10000);
                         System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
-                        QuitChrome();
                     }
                     HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
                     if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
@@ -2516,29 +2514,96 @@ namespace com.gestapoghost.entertainment.service
 
                 }
                 ConsoleWrite(webString, clips);
-                
+
 
                 MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
                 {
-                    ScraperMovieScenes(_Company, _Series, _Movie, clips);
-                    MessageBox.Show("111");
+                    ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\", clips);
+                    MessageBox.Show("完成");
                 }
                 else
                 {
-                    MessageBox.Show("222");
+                    MessageBox.Show("失败");
                 }
+            }
+            else if (webString.Contains("www.falconstudios.com"))
+            {
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = webString;
+                    Thread.Sleep(10000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title);
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\main.html", driver.PageSource);
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\main.html");
+                //*[@id="reactApplication"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                totalNum = clipNodes.Count;
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipTitle = "";
+                    string clipImgUrl = "";
+                    string clipUrl = "";
+                    string clipDate = "";
+                    string clipDescription = "";
+                    resultNum++;
 
 
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
+                    else Console.WriteLine("clipTitle is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim() + "?width=1280&amp;height=720&amp;format=jpg";
+                    else Console.WriteLine("clipImgUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.falconstudios.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                    else Console.WriteLine("clipUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]") != null) clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]").InnerText;
+                    else Console.WriteLine("clipDate is null");
 
+                    Console.WriteLine("ClipTitle: " + clipTitle + "\n" + "ClipImgUrl: " + clipImgUrl + "\n" + "ClipUrl: " + clipUrl + "\n" + "ClipDate: " + clipDate + "\n");
+
+                    if (clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a") != null)
+                    {
+                        List<string> _Actors = new List<string>();
+                        foreach (HtmlNode actorNode in clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a")) _Actors.Add(actorNode.InnerText);
+                        clipDescription += string.Join(", ", _Actors);
+                        clipDescription += "\n\n";
+                    }
+                    else Console.WriteLine("Star is null");
+
+                    if (!File.Exists(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html"))
+                    {
+                        StartChrome();
+                        driver.Url = clipUrl;
+                        Thread.Sleep(10000);
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
+                    }
+                    HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
+                    else Console.WriteLine("clipDescription is null");
+                    clips.Add(new string[] { (totalNum - resultNum + 1).ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                }
+                ConsoleWrite(webString, clips);
+
+
+                MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (dr == MessageBoxResult.OK)
+                {
+                    ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\", clips);
+                    MessageBox.Show("完成");
+                }
+                else
+                {
+                    MessageBox.Show("失败");
+                }
             }
             else
             {
                 Console.WriteLine("webString is error");
             }
+            QuitChrome();
         }
-
-
 
         private void FromUrlToHtml(string webUrl, string htmlUrl)
         {
@@ -2771,7 +2836,7 @@ namespace com.gestapoghost.entertainment.service
             }
         }
 
-        private void ScraperMovieScenes(Company _Company, Series _Series, Movie _Movie, ArrayList clips)
+        private void ScraperMovieScenes(Company _Company, Series _Series, Movie _Movie, string picPath, ArrayList clips)
         {
             foreach (string[] clip in clips)
             {
@@ -2782,7 +2847,7 @@ namespace com.gestapoghost.entertainment.service
                     _Scene.Scene = int.Parse(clip[0]);
                     _Scene.Title = clip[1];
                     _Scene.ClipUrl = clip[3];
-                    _Scene.Pic = FromUrlToImage(clip[2].Replace("&amp;", "&"), @"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\" + clip[0] + ".jpg");
+                    _Scene.Pic = FromUrlToImage(clip[2].Replace("&amp;", "&"), picPath + clip[0] + ".jpg");
                     _Scene.Description = clip[5];
                     if (string.Equals(clip[4], "")) _Scene.Date = DateTime.Parse("1980-1-1");
                     else _Scene.Date = DateTime.Parse(clip[4]);
@@ -2798,7 +2863,6 @@ namespace com.gestapoghost.entertainment.service
             }
         }
         
-
         private string[] ProxyFromWebUrl(string webUrl)
         {
             if (webUrl.Contains("www.kristenbjorn.com"))
