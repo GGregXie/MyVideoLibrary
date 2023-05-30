@@ -100,13 +100,6 @@ namespace com.gestapoghost.entertainment.xaml.main
             (Application.Current as App).CompanyPage.InitPage();
             MainFrame.Content = (Application.Current as App).CompanyPage;
         }
-        private void JustforfansButton_Click(object sender, RoutedEventArgs e)
-        {
-            (Application.Current as App).CompanyTypeId = 7;
-            (Application.Current as App).Actor = null;
-            (Application.Current as App).CompanyPage.InitPage();
-            MainFrame.Content = (Application.Current as App).CompanyPage;
-        }
         private void Cam4Button_Click(object sender, RoutedEventArgs e)
         {
             (Application.Current as App).CompanyTypeId = 8;
@@ -331,7 +324,6 @@ namespace com.gestapoghost.entertainment.xaml.main
                 XhamsterButton.Visibility = Visibility.Visible;
                 XtubeButton.Visibility = Visibility.Visible;
                 OnlyfansButton.Visibility = Visibility.Visible;
-                JustforfansButton.Visibility = Visibility.Visible;
                 Cam4Button.Visibility = Visibility.Visible;
                 ActorButton.Visibility = Visibility.Visible;
                 ComicButton.Visibility = Visibility.Visible;
@@ -348,7 +340,6 @@ namespace com.gestapoghost.entertainment.xaml.main
                 XhamsterButton.Visibility = Visibility.Hidden;
                 XtubeButton.Visibility = Visibility.Hidden;
                 OnlyfansButton.Visibility = Visibility.Hidden;
-                JustforfansButton.Visibility = Visibility.Hidden;
                 Cam4Button.Visibility = Visibility.Hidden;
                 ActorButton.Visibility = Visibility.Hidden;
                 ComicButton.Visibility = Visibility.Hidden;
