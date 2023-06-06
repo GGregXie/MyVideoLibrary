@@ -2081,6 +2081,7 @@ namespace com.gestapoghost.entertainment.service
 
                         string clipDate = "";
                         HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
+                        string clipTitle2 = clipDocument.DocumentNode.SelectSingleNode("//h2[contains(@class, 'normal-caps')]").InnerText;
                         string clipDescription = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'large-text')]").InnerText.Trim();
                         DateTime dt = new DateTime();
 
@@ -2092,8 +2093,7 @@ namespace com.gestapoghost.entertainment.service
                                 dt = DateTime.Parse(clipDate);
                             }
                         }
-
-                        clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
+                        if(!clipTitle2.Contains("TRAILER:")) clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
 
                     }
 
@@ -2465,7 +2465,11 @@ namespace com.gestapoghost.entertainment.service
                 {
                     StartChrome();
                     driver.Url = webString;
-                    Thread.Sleep(10000);
+                    Thread.Sleep(5000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(1000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(4000);
                     if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title);
                     System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html", driver.PageSource);
                 }
@@ -2533,7 +2537,11 @@ namespace com.gestapoghost.entertainment.service
                 {
                     StartChrome();
                     driver.Url = webString;
-                    Thread.Sleep(10000);
+                    Thread.Sleep(5000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(1000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(4000);
                     if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title);
                     System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\main.html", driver.PageSource);
                 }
