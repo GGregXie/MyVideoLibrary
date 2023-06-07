@@ -2317,7 +2317,17 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (string.Equals(webString, "Disruptive Films"))
             {
-                document = new HtmlWeb().Load(@"D:\VideoTemp\html\1.html");
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.disruptivefilms.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html"))
+                {
+                    StartChrome();
+                    driver.Url = "https://www.disruptivefilms.com/en/videos";
+                    Thread.Sleep(10000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.disruptivefilms.com\")) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.disruptivefilms.com\");
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.disruptivefilms.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html", driver.PageSource);
+                    QuitChrome();
+                }
+
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.disruptivefilms.com\" + DateTime.Now.ToString("yyyy-MM-dd") + ".html");
 
 
                 //https://www.disruptivefilms.com/en/videos
@@ -2337,7 +2347,7 @@ namespace com.gestapoghost.entertainment.service
                         if (string.Equals(clipTitle, lastClip.Title)) isLast = true;
                         if (!isLast)
                         {
-                            string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Replace("?width=500&amp;height=281&amp;format=webp", "").Replace("?width=350&amp;height=196&amp;format=webp", "");
+                            string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Replace("?width=500&amp;height=281&amp;format=webp", "").Replace("?width=350&amp;height=196&amp;format=webp", "").Replace("?width=550&amp;height=309&amp;format=webp", "");
                             string clipUrl = "https://www.disruptivefilms.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
 
                             string clipDescription = "";
