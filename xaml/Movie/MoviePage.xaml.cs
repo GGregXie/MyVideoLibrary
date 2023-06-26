@@ -50,6 +50,14 @@ namespace com.gestapoghost.entertainment.xaml.movie
             InitPage();
         }
 
+        private void CodeTVAIMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MovieService.GetMovieService().SetMovieCode((sender as MenuItem).Tag as Movie, "TVAI");
+            MessageBox.Show("设置编码TVAI成功");
+            InitPage();
+        }
+
+
         private void SourceDVDMenuItem_Click(object sender, RoutedEventArgs e)
         {
             MovieService.GetMovieService().SetMovieSource((sender as MenuItem).Tag as Movie, "DVD");

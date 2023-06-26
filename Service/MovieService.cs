@@ -28,6 +28,9 @@ namespace com.gestapoghost.entertainment.service
                 case "HEVC":
                     code_id = 2;
                     break;
+                case "TVAI":
+                    code_id = 3;
+                    break;
             }
             MovieDao.GetMovieDao().SetMovieCode(_Movie.Id, code_id);
         }

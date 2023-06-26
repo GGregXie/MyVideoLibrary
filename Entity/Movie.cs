@@ -21,6 +21,8 @@ namespace com.gestapoghost.entertainment.entity
                     return "NVENC";
                 else if (this.Code == 2)
                     return "HEVC";
+                else if (this.Code == 3)
+                    return "TVAI";
                 else
                     return "";
             }

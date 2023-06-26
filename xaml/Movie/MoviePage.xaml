@@ -45,6 +45,7 @@
                                         <MenuItem Header="修改" Tag="{Binding }" Click="UpdateMenuItem_Click" />
                                         <MenuItem Header="编码HEVC" Tag="{Binding }" Click="CodeHEVCMenuItem_Click" />
                                         <MenuItem Header="编码NVENC" Tag="{Binding }" Click="CodeNVENCMenuItem_Click" />
+                                        <MenuItem Header="编码TVAI" Tag="{Binding }" Click="CodeTVAIMenuItem_Click" />
                                         <MenuItem Header="来源DVD" Tag="{Binding }" Click="SourceDVDMenuItem_Click" />
                                         <MenuItem Header="来源WEB" Tag="{Binding }" Click="SourceWebMenuItem_Click" />
                                         <MenuItem Header="来源BluRay" Tag="{Binding }" Click="SourceBluRayMenuItem_Click" />
