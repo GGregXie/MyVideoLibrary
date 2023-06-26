@@ -58,6 +58,25 @@ namespace com.gestapoghost.entertainment.xaml.actor
             _ActorPageViewModel.GetPageButtons();
         }
 
+        private void OtherLikeWithPicButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ActorPageViewModel.ActorType = 4;
+            _ActorPageViewModel.Search = "";
+            _ActorPageViewModel.GetPaging();
+            _ActorPageViewModel.GetActors();
+            _ActorPageViewModel.GetPageButtons();
+        }
+
+        private void OtherLikeWithoutPicButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ActorPageViewModel.ActorType = 5;
+            _ActorPageViewModel.Search = "";
+            _ActorPageViewModel.GetPaging();
+            _ActorPageViewModel.GetActors();
+            _ActorPageViewModel.GetPageButtons();
+        }
+
+
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             _ActorPageViewModel.ActorType = 0;

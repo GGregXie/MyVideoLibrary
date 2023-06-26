@@ -132,6 +132,10 @@ namespace com.gestapoghost.entertainment.service
                         return new Paging(ActorDao.GetActorDao().GetAllActorsCountByLove(2));
                     case 3:
                         return new Paging(ActorDao.GetActorDao().GetAllActorsCountByLove(3));
+                    case 4:
+                        return new Paging(ActorDao.GetActorDao().GetAllActorsCountByLoveWithPic(1));
+                    case 5:
+                        return new Paging(ActorDao.GetActorDao().GetAllActorsCountByLoveWithoutPic(1));
                     default:
                         return new Paging(ActorDao.GetActorDao().GetAllActorsCount());
                 }
@@ -154,6 +158,10 @@ namespace com.gestapoghost.entertainment.service
                         return ActorDao.GetActorDao().GetAllActorsByLove(2, _Paging);
                     case 3:
                         return ActorDao.GetActorDao().GetAllActorsByLove(3, _Paging);
+                    case 4:
+                        return ActorDao.GetActorDao().GetAllActorsByLoveWithPic(1, _Paging);
+                    case 5:
+                        return ActorDao.GetActorDao().GetAllActorsByLoveWithoutPic(1, _Paging);
                     default:
                         return ActorDao.GetActorDao().GetAllActors(_Paging);
                 }

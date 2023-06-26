@@ -17,8 +17,10 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="NameButton"         Margin="0, 0, 10, 0" Content="名称"       Width="100" Height="40"  Click="NameButton_Click" />
+                <Button x:Name="NameButton"         Margin="0, 0, 10, 0" Content="全部"       Width="100" Height="40"  Click="NameButton_Click" />
                 <Button x:Name="OtherLikeButton"    Margin="0, 0, 10, 0" Content="其他"       Width="100" Height="40"  Click="OtherLikeButton_Click" />
+                <Button x:Name="OtherLikeWithPicButton"    Margin="0, 0, 10, 0" Content="其他（有头像）"       Width="100" Height="40"  Click="OtherLikeWithPicButton_Click" />
+                <Button x:Name="OtherLikeWithoutPicButton"    Margin="0, 0, 10, 0" Content="其他（有头像）"       Width="100" Height="40"  Click="OtherLikeWithoutPicButton_Click" />
                 <Button x:Name="LikeButton"         Margin="0, 0, 10, 0" Content="喜欢"       Width="100" Height="40"  Click="LikeButton_Click" />
                 <Button x:Name="UnLikeButton"       Margin="0, 0, 10, 0" Content="不喜欢"     Width="100" Height="40"  Click="UnLikeButton_Click" />
                 <TextBox x:Name="ActorSearchName"   Margin="0, 0, 10, 0" Text="{Binding Path=Search, Mode=TwoWay }" Width="100" Height="40"  FontSize="16" FontWeight="Bold"  />

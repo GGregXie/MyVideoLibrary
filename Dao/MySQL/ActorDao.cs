@@ -224,6 +224,17 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
             return Convert.ToInt32(BaseDao.getBaseDao().GetRowBySQL(strSQL)[0].ToString());
         }
 
+        public int GetAllActorsCountByLoveWithPic(int _Love)
+        {
+            string strSQL = "select count(id) from actor where love = " + _Love + " and pic != 'ActorNull'";
+            return Convert.ToInt32(BaseDao.getBaseDao().GetRowBySQL(strSQL)[0].ToString());
+        }
+
+        public int GetAllActorsCountByLoveWithoutPic(int _Love)
+        {
+            string strSQL = "select count(id) from actor where love = " + _Love + " and pic = 'ActorNull'";
+            return Convert.ToInt32(BaseDao.getBaseDao().GetRowBySQL(strSQL)[0].ToString());
+        }
         public ObservableCollection<Actor> GetAllActors(Paging _Paging)
         {
             string strSQL = "select id, name, pic, love, count from actor left join (select actor_id, count(actor_id) as count from clip_actor group by actor_id) actor_count on actor.id = actor_count.actor_id order by name limit @start_item, @item_num";
@@ -256,6 +267,29 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
             };
             return GetActorsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL, parameters));
         }
+
+        public ObservableCollection<Actor> GetAllActorsByLoveWithPic(int _Love, Paging _Paging)
+        {
+            string strSQL = "select id, name, pic, love, count from actor left join (select actor_id, count(actor_id) as count from clip_actor group by actor_id) actor_count on actor.id = actor_count.actor_id where love = @love and pic != 'ActorNull' order by name limit @start_item, @item_num";
+            MySqlParameter[] parameters = {
+                new MySqlParameter(){ ParameterName = "@love",              DbType = DbType.Int32, Value = _Love },
+                new MySqlParameter(){ ParameterName = "@start_item",        DbType = DbType.Int32, Value =  (_Paging.CurrentPage - 1) * _Paging.PageItemNum },
+                new MySqlParameter(){ ParameterName = "@item_num",          DbType = DbType.Int32, Value = _Paging.PageItemNum }
+            };
+            return GetActorsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL, parameters));
+        }
+
+        public ObservableCollection<Actor> GetAllActorsByLoveWithoutPic(int _Love, Paging _Paging)
+        {
+            string strSQL = "select id, name, pic, love, count from actor left join (select actor_id, count(actor_id) as count from clip_actor group by actor_id) actor_count on actor.id = actor_count.actor_id where love = @love and pic = 'ActorNull' order by name limit @start_item, @item_num";
+            MySqlParameter[] parameters = {
+                new MySqlParameter(){ ParameterName = "@love",              DbType = DbType.Int32, Value = _Love },
+                new MySqlParameter(){ ParameterName = "@start_item",        DbType = DbType.Int32, Value =  (_Paging.CurrentPage - 1) * _Paging.PageItemNum },
+                new MySqlParameter(){ ParameterName = "@item_num",          DbType = DbType.Int32, Value = _Paging.PageItemNum }
+            };
+            return GetActorsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL, parameters));
+        }
+
 
         public void UpdateActorLike(int actor_id, int love)
         {
