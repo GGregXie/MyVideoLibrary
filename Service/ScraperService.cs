@@ -2688,6 +2688,81 @@ namespace com.gestapoghost.entertainment.service
                     MessageBox.Show("失败");
                 }
             }
+            else if (webString.Contains("www.hothouse.com"))
+            {
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = webString;
+                    Thread.Sleep(5000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(1000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(4000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title);
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\main.html", driver.PageSource);
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\main.html");
+                //*[@id="reactApplication"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                totalNum = clipNodes.Count;
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipTitle = "";
+                    string clipImgUrl = "";
+                    string clipUrl = "";
+                    string clipDate = "";
+                    string clipDescription = "";
+                    resultNum++;
+
+
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
+                    else Console.WriteLine("clipTitle is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim() + "?width=1280&amp;height=720&amp;format=jpg";
+                    else Console.WriteLine("clipImgUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.hothouse.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                    else Console.WriteLine("clipUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]") != null) clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]").InnerText;
+                    else Console.WriteLine("clipDate is null");
+
+                    Console.WriteLine("ClipTitle: " + clipTitle + "\n" + "ClipImgUrl: " + clipImgUrl + "\n" + "ClipUrl: " + clipUrl + "\n" + "ClipDate: " + clipDate + "\n");
+
+                    if (clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a") != null)
+                    {
+                        List<string> _Actors = new List<string>();
+                        foreach (HtmlNode actorNode in clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a")) _Actors.Add(actorNode.InnerText);
+                        clipDescription += string.Join(", ", _Actors);
+                        clipDescription += "\n\n";
+                    }
+                    else Console.WriteLine("Star is null");
+
+                    if (!File.Exists(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html"))
+                    {
+                        StartChrome();
+                        driver.Url = clipUrl;
+                        Thread.Sleep(10000);
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
+                    }
+                    HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
+                    else Console.WriteLine("clipDescription is null");
+                    clips.Add(new string[] { (totalNum - resultNum + 1).ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                }
+                ConsoleWrite(webString, clips);
+
+
+                MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (dr == MessageBoxResult.OK)
+                {
+                    ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\", clips);
+                    MessageBox.Show("完成");
+                }
+                else
+                {
+                    MessageBox.Show("失败");
+                }
+            }
             else
             {
                 Console.WriteLine("webString is error");
