@@ -487,6 +487,15 @@ namespace com.gestapoghost.entertainment.xaml.clip
             _ClipPageViewModel.GetPageButtons();
         }
 
+        private void ClearTagMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Clip _Clip = (sender as MenuItem).Tag as Clip;
+            ClipService.GetClipService().SetFinishClipClear(_Clip);
+            _Clip.Finish = 0;
+            MessageBox.Show("成功清除标记");
+            InitPage();
+        }
+
         private void HasVideoRadio_Click(object sender, RoutedEventArgs e)
         {
             if (AllVideoRadio.IsChecked == true)

@@ -235,6 +235,13 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
             string strSQL = "select count(id) from actor where love = " + _Love + " and pic = 'ActorNull'";
             return Convert.ToInt32(BaseDao.getBaseDao().GetRowBySQL(strSQL)[0].ToString());
         }
+
+        public ObservableCollection<Actor> GetAllActors()
+        {
+            string strSQL = "select id, name, pic, love, count from actor";
+            return GetActorsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL));
+        }
+
         public ObservableCollection<Actor> GetAllActors(Paging _Paging)
         {
             string strSQL = "select id, name, pic, love, count from actor left join (select actor_id, count(actor_id) as count from clip_actor group by actor_id) actor_count on actor.id = actor_count.actor_id order by name limit @start_item, @item_num";

@@ -7,7 +7,9 @@ using MyMovie.xaml.Comic;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows;
 
@@ -298,10 +300,79 @@ namespace com.gestapoghost.entertainment.xaml.main
                     ClearButton.Content = "清理";
                 });
                 MessageBox.Show("Finish");
+
+
+
+
+
+
+
+
+
             });
             th.Start();
             th.IsBackground = true;
         }
+
+
+        private void ClearActorButton_Click(object sender, RoutedEventArgs e)
+        {
+            Thread th = new Thread(delegate ()
+            {
+                string strSQL = "select * from clip_actor";
+
+                DataTable _ClipDataTable = BaseDao.getBaseDao().GetTableBySQL(strSQL);
+
+                List<string> clip_actor_list = new List<string>();
+
+                foreach (DataRow _ClipDataRow in _ClipDataTable.Rows)
+                {
+                    string clip_id = _ClipDataRow["clip_id"].ToString();
+                    string actor_Id = _ClipDataRow["actor_id"].ToString();
+                    clip_actor_list.Add("" + clip_id + "|" + actor_Id);
+                }
+
+
+                foreach (string clip_actor in clip_actor_list)
+                {
+                    int clip_id = Convert.ToInt32(clip_actor.Split("|".ToCharArray())[0]);
+
+                    ObservableCollection<Clip> clips = ClipDao.GetClipDao().GetClipById(clip_id);
+
+                    if (clips.Count < 1)
+                    {
+                        
+                        string strSQL2 = "delete from clip_actor where clip_id = " + clip_id + " and actor_id = " + clip_actor.Split("|".ToCharArray())[1];
+                        Console.WriteLine(strSQL2);
+ 
+                        BaseDao.getBaseDao().ExecuteSQL(strSQL2);
+
+
+                    }
+
+
+
+                }
+
+
+
+
+
+            });
+            th.Start();
+            th.IsBackground = true;
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         private void GobackButton_Click(object sender, RoutedEventArgs e)
         {
@@ -329,6 +400,7 @@ namespace com.gestapoghost.entertainment.xaml.main
                 ComicButton.Visibility = Visibility.Visible;
                 ClearButton.Visibility = Visibility.Visible;
                 ClearFileButton.Visibility = Visibility.Visible;
+                ClearActorButton.Visibility = Visibility.Visible;
                 UpdateButton.Visibility = Visibility.Visible;
                 VideoInfoUpdateButton.Visibility = Visibility.Visible;
                 DVDsButton.Visibility = Visibility.Visible;
@@ -345,6 +417,7 @@ namespace com.gestapoghost.entertainment.xaml.main
                 ComicButton.Visibility = Visibility.Hidden;
                 ClearButton.Visibility = Visibility.Hidden;
                 ClearFileButton.Visibility = Visibility.Hidden;
+                ClearActorButton.Visibility = Visibility.Hidden;
                 UpdateButton.Visibility = Visibility.Hidden;
                 VideoInfoUpdateButton.Visibility = Visibility.Hidden;
                 this.IndexButton_Click(sender, e);

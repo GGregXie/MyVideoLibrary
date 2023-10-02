@@ -1309,6 +1309,42 @@ namespace com.gestapoghost.entertainment.service
                 ConsoleWrite(webString, clips);
                 //ScraperClips(clips, 70, 25);
             }
+            else if (string.Equals(webString, "Deviant Man - Deviant Man"))
+            {
+                document = new HtmlWeb().Load("https://deviantman.com/videos-by-release-date/");
+
+                clipNodes = document.DocumentNode.SelectNodes("//li[contains(@class, 'isotope-item')]");
+
+                Console.WriteLine(clipNodes.Count);
+
+                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(589);
+
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+
+                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'desc')]/h4").InnerText.Trim();
+
+                    if (string.Equals(clipTitle, lastClip.Title)) isLast = true;
+
+                    if (!isLast)
+                    {
+                        string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Trim();
+
+                        string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+
+                        string clipDate = "";
+                        string clipDescription = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'desc')]/p").InnerText.Trim();
+
+                        clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                    }
+
+                    resultNum++;
+                }
+                ChangeClipsNum(lastClip.Number, clips);
+                ConsoleWrite(webString, clips);
+                ScraperClips(clips, 134, 589);
+            }
             else if (string.Equals(webString, "Mania Media - Bareback That Hole"))
             {
                 document = new HtmlWeb().Load("https://barebackthathole.com/tour/categories/Episodes_1_d.html?nats=MC4yLjEuMS4wLjAuMC4wLjA");
@@ -1925,7 +1961,8 @@ namespace com.gestapoghost.entertainment.service
                     {
                         HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
                         clipDescription += "\n\n" + clipDocument.DocumentNode.SelectSingleNode("//p[contains(@class, 'update_description')]").InnerText.Trim();
-                        clipImgUrl = clipDocument.DocumentNode.SelectSingleNode("//video-js").GetAttributeValue("poster", "").Trim();
+                        clipImgUrl = "https://menatplay.com/" + clipDocument.DocumentNode.SelectSingleNode("//video-js").GetAttributeValue("poster", "").Trim();
+
                         clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, "" + dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
                     }
                     resultNum++;
@@ -2016,7 +2053,18 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (string.Equals(webString, "Older 4 Me - My First Daddy"))
             {
-                document = new HtmlWeb().Load(@"D:\VideoTemp\html\1.html");
+                //"https://www.myfirstdaddy.com/scenes"
+
+                if (!File.Exists(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = "https://www.myfirstdaddy.com/scenes";
+                    Thread.Sleep(10000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd"))) Directory.CreateDirectory(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd"));
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html", driver.PageSource);
+                }
+
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html");
 
                 clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'row equal')]/div");
 
@@ -2052,7 +2100,8 @@ namespace com.gestapoghost.entertainment.service
                 }
                 ChangeClipsNum(lastClip.Number, clips);
                 ConsoleWrite(webString, clips);
-                //ScraperClips(clips, 1, 416);
+                ScraperClips(clips, 1001, 416);
+                QuitChrome();
             }
             else if (string.Equals(webString, "Older 4 Me - Top Latin Daddies"))
             {
@@ -2145,7 +2194,10 @@ namespace com.gestapoghost.entertainment.service
                 {
 
                     string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'box-over')]/h5").InnerHtml.Trim();
+                    string clipTitle2 = "";
+
                     if (string.Equals(clipTitle, lastClip.Title)) isLast = true;
+
                     if (!isLast)
                     {
                         string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'scene-box')]//img").GetAttributeValue("data-original", "").Trim();
@@ -2153,7 +2205,7 @@ namespace com.gestapoghost.entertainment.service
 
                         string clipDate = "";
                         HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
-                        string clipTitle2 = clipDocument.DocumentNode.SelectSingleNode("//h2[contains(@class, 'normal-caps')]").InnerText;
+                        clipTitle2 = clipDocument.DocumentNode.SelectSingleNode("//h2[contains(@class, 'normal-caps')]").InnerText;
                         string clipDescription = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'large-text')]").InnerText.Trim();
                         DateTime dt = new DateTime();
 
@@ -2165,11 +2217,13 @@ namespace com.gestapoghost.entertainment.service
                                 dt = DateTime.Parse(clipDate);
                             }
                         }
+
+
                         if(!clipTitle2.Contains("TRAILER:")) clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
 
                     }
 
-                    resultNum++;
+                    if (!clipTitle2.Contains("TRAILER:")) resultNum++;
                 }
                 ChangeClipsNum(lastClip.Number, clips);
                 ConsoleWrite(webString, clips);

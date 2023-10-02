@@ -31,6 +31,11 @@ namespace com.gestapoghost.entertainment.service
             ClipDao.GetClipDao().SetClipSizeById(clipId, size);
         }
 
+        public void SetFinishClipClear(Clip _Clip)
+        {
+            ClipDao.GetClipDao().SetFinishClearById(_Clip.Id, 0);
+        }
+
         public void FinishClipNSP(Clip _Clip, int size)
         {
             ClipDao.GetClipDao().SetClipNSPFinishById(_Clip.Id, size);

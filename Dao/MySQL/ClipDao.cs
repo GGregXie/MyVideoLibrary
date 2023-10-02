@@ -397,6 +397,17 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
             BaseDao.getBaseDao().ExecuteSQL(strSQL, parameters);
         }
 
+        public void SetFinishClearById(int clipId, int size)
+        {
+
+            string strSQL = "update clip set finish = 0, size = @size where id = @id";
+            MySqlParameter[] parameters = {
+                new MySqlParameter(){ ParameterName = "@id",    DbType = DbType.Int32, Value = clipId },
+                new MySqlParameter(){ ParameterName = "@size",  DbType = DbType.Int32, Value = size }
+            };
+            BaseDao.getBaseDao().ExecuteSQL(strSQL, parameters);
+        }
+
         public void SetClipXCIFinishById(int clipId, int size)
         {
             string strSQL = "update clip set finish = 3, size = @size where id = @id";
@@ -609,6 +620,15 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
                 new MySqlParameter(){ ParameterName = "@start_item",    DbType = DbType.Int32, Value = (_Paging.CurrentPage - 1) * _Paging.PageItemNum },
                 new MySqlParameter(){ ParameterName = "@item_num",      DbType = DbType.Int32, Value = _Paging.PageItemNum },
                 new MySqlParameter(){ ParameterName = "@search",      DbType = DbType.String, Value = _Search }
+            };
+            return GetClipsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL, parameters));
+        }
+
+        public ObservableCollection<Clip> GetClipById(int clip_id)
+        {
+            string strSQL = "select * from clip where id = @clip_id";
+            MySqlParameter[] parameters = {
+                new MySqlParameter(){ ParameterName = "@clip_id",    DbType = DbType.Int32, Value = clip_id }
             };
             return GetClipsFromDataTable(BaseDao.getBaseDao().GetTableBySQL(strSQL, parameters));
         }

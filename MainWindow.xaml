@@ -34,8 +34,9 @@
                     <Button x:Name="Cam4Button"  Margin="10, 0, 0, 0" Content="Cam4" Width="80" Height="40" Click="Cam4Button_Click" Visibility="Hidden"/>
                     <Button x:Name="ActorButton"  Margin="10, 0, 0, 0" Content="演员" Width="80" Height="40" Click="ActorButton_Click" Visibility="Hidden"/>
                     <Button x:Name="ComicButton"  Margin="10, 0, 0, 0" Content="漫画" Width="80" Height="40" Click="ComicButton_Click" Visibility="Hidden"/>
-                    <Button x:Name="ClearButton"  Margin="10, 0, 0, 0" Content="清理图片" Width="120" Height="40" Click="ClearButton_Click" Visibility="Hidden"/>
-                    <Button x:Name="ClearFileButton"  Margin="10, 0, 0, 0" Content="清理文件" Width="120" Height="40" Click="ClearFileButton_Click" Visibility="Hidden"/>
+                    <Button x:Name="ClearButton"  Margin="10, 0, 0, 0" Content="清理图片" Width="80" Height="40" Click="ClearButton_Click" Visibility="Hidden"/>
+                    <Button x:Name="ClearFileButton"  Margin="10, 0, 0, 0" Content="清理文件" Width="80" Height="40" Click="ClearFileButton_Click" Visibility="Hidden"/>
+                    <Button x:Name="ClearActorButton"  Margin="10, 0, 0, 0" Content="清理演员" Width="80" Height="40" Click="ClearActorButton_Click" Visibility="Hidden"/>
                     <Button x:Name="UpdateButton"  Margin="10, 0, 0, 0" Content="更新" Width="80" Height="40" Click="UpdateButton_Click" Visibility="Hidden"/>
                     <Button x:Name="VideoInfoUpdateButton"  Margin="10, 0, 0, 0" Content="视频信息更新" Width="80" Height="40" Click="VideoInfoUpdateButton_Click" Visibility="Hidden"/>
                 </StackPanel>

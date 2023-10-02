@@ -216,6 +216,7 @@
     <Compile Include="Dao\MySQL\CompanyDao.cs" />
     <Compile Include="Dao\MySQL\MovieDao.cs" />
     <Compile Include="Dao\MySQL\SeriesDao.cs" />
+    <Compile Include="Dao\MySQL\TempDao.cs" />
     <Compile Include="Dao\SQLite\ActorDao.cs" />
     <Compile Include="Dao\SQLite\CompilationDao.cs" />
     <Compile Include="Dao\SQLite\MovieDao.cs" />
