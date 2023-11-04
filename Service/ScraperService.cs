@@ -339,6 +339,7 @@ namespace com.gestapoghost.entertainment.service
                     ScraperClips(0, clips, 10, 0);
                     break;
                 */
+
                 default:
                     break;
             }
@@ -1094,8 +1095,8 @@ namespace com.gestapoghost.entertainment.service
                     //ScraperUpdate("Mania Media - Bareback That Hole");
                     //ScraperUpdate("Mania Media - Breed Me Raw");
                     //ScraperUpdate("Masqulin");
-                    ScraperUpdate("Pride Studio - Extra Big Dicks");
-                    ScraperUpdate("Pride Studio - Men Over 30");
+                    //ScraperUpdate("Pride Studio - Extra Big Dicks");
+                    //ScraperUpdate("Pride Studio - Men Over 30");
                     //ScraperUpdate("Pride Studio - Bear Back");
                     //ScraperUpdate("Pride Studio - Family Creep");
                     //ScraperUpdate("Butch Dixon - Butch Dixon");
@@ -1104,9 +1105,9 @@ namespace com.gestapoghost.entertainment.service
                     //QuitChrome();
 
 
-                    for (int i = 20; i > 0; i--)
+                    for (int i = 0; i > 0; i--)
                     {
-                        ScraperUpdate("Older 4 Me - Older 4 Me" + i);
+                        ScraperUpdate("Icon Male - Icon Male" + i);
                     }
 
 
@@ -1939,6 +1940,81 @@ namespace com.gestapoghost.entertainment.service
                 ChangeClipsNum(lastClip.Number, clips);
                 ConsoleWrite(webString, clips);
                 ScraperClips(clips, 2, 46);
+            }
+            else if (webString.Contains("Icon Male - Icon Male"))
+            {
+                //"https://www.iconmale.com/scenes?page=1"
+
+                if (!File.Exists(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = "https://www.iconmale.com/scenes?page=1";
+                    Thread.Sleep(15000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd"))) Directory.CreateDirectory(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd"));
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html", driver.PageSource);
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html");
+                clipNodes = document.DocumentNode.SelectNodes("//html/body/div/div[1]/div[2]/div[1]/div[2]/div[2]/div/section/div/div[2]/div/div");
+
+                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(625);
+
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null)
+                    {
+                        string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("title", "").Trim().Replace("&amp;", "&");
+                        string clipUrl = "https://www.iconmale.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                        string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div/div[2]/div[2]").InnerText.Trim();
+                        string clipDescription = "";
+                        string clipImgUrl = "";
+
+
+                        if (!File.Exists(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + clipTitle + ".html"))
+                        {
+                            StartChrome();
+                            driver.Url = clipUrl;
+                            Thread.Sleep(10000);
+                            Console.WriteLine(clipTitle);
+                            System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + clipTitle.Replace(":", "_").Replace("?", "_") + ".html", driver.PageSource);
+                        }
+                        HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + clipTitle.Replace(":", "_").Replace("?", "_") + ".html");
+                        
+                        if(clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[1]/div[2]/div/div/div/span[2]/div[2]") != null)
+                            clipDescription = clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[1]/div[2]/div/div/div/span[2]/div[2]").InnerText.Trim();
+
+                        if (clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/img") != null)
+                        {
+                            clipImgUrl = clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/img").GetAttributeValue("src", "").Trim();
+                        }
+                        else
+                        {
+                            if (clipDocument.DocumentNode.SelectSingleNode("/html/body/div/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/section/div/div/div[1]") != null)
+                            {
+                                clipImgUrl = clipDocument.DocumentNode.SelectSingleNode("/html/body/div/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/section/div/div/div[1]").GetAttributeValue("style", "").Replace("background-image: url(&quot;", "").Replace("&quot;);", "");
+                            }
+                            else
+                            { 
+                                clipImgUrl = "";
+                            }
+                        }
+
+
+                        if (string.Equals(clipTitle.ToLower().Trim(), lastClip.Title.ToLower().Trim())) isLast = true;
+
+                        if (!isLast) clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+
+
+
+                        resultNum++;
+                    }
+                }
+
+                ChangeClipsNum(lastClip.Number, clips);
+
+                ConsoleWrite(webString, clips);
+                ScraperClips(clips, 40, 625);
+                QuitChrome();
             }
             else if (string.Equals(webString, "Men At Play"))
             {
@@ -2882,6 +2958,78 @@ namespace com.gestapoghost.entertainment.service
                 if (dr == MessageBoxResult.OK)
                 {
                     ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.clubinfernodungeon.com\" + _Movie.Title + @"\", clips);
+                    MessageBox.Show("完成");
+                }
+                else
+                {
+                    MessageBox.Show("失败");
+                }
+            }
+            else if (webString.Contains("www.fistingcentral.com"))
+            {
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = webString;
+                    Thread.Sleep(5000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(1000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(4000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title);
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\main.html", driver.PageSource);
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\main.html");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                totalNum = clipNodes.Count;
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipTitle = "";
+                    string clipImgUrl = "";
+                    string clipUrl = "";
+                    string clipDate = "";
+                    string clipDescription = "";
+                    resultNum++;
+
+
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
+                    else Console.WriteLine("clipTitle is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim() + "?width=1280&amp;height=720&amp;format=jpg";
+                    else Console.WriteLine("clipImgUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.fistingcentral.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                    else Console.WriteLine("clipUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]") != null) clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]").InnerText;
+                    else Console.WriteLine("clipDate is null");
+
+                    if (clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a") != null)
+                    {
+                        List<string> _Actors = new List<string>();
+                        foreach (HtmlNode actorNode in clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a")) _Actors.Add(actorNode.InnerText);
+                        clipDescription += string.Join(", ", _Actors);
+                        clipDescription += "\n\n";
+                    }
+                    else Console.WriteLine("Star is null");
+
+                    if (!File.Exists(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html"))
+                    {
+                        StartChrome();
+                        driver.Url = clipUrl;
+                        Thread.Sleep(10000);
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
+                    }
+                    HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
+                    else Console.WriteLine("clipDescription is null");
+                    clips.Add(new string[] { (totalNum - resultNum + 1).ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                }
+                ConsoleWrite(webString, clips);
+
+
+                MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (dr == MessageBoxResult.OK)
+                {
+                    ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\", clips);
                     MessageBox.Show("完成");
                 }
                 else
