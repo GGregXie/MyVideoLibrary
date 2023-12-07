@@ -349,198 +349,218 @@ namespace com.gestapoghost.entertainment.service
         {
             if (ClipDao.GetClipDao().GetAllClipCountBySeries(_Series.Id) == 0)
             {
-                Thread th = new Thread(delegate ()
-                {
-                    MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                    if (dr == MessageBoxResult.OK)
-                    {
-//                        FromUrlToHtml("https://xhamster48.com/users/" + _Series.Name.ToLower() + "/videos", "D:/VideoTemp/html/xhamster.html");
-                        HtmlDocument _Document = new HtmlWeb().Load("https://xhamster48.com/users/" + _Series.Name.ToLower() + "/videos");
-
-                        Console.WriteLine(_Document.Text);
-
-                        HtmlNode _TotalNumNode = _Document.DocumentNode.SelectSingleNode("//a[contains(@class, 'active current-tab followable videos')]/span");
-
-
-                        ArrayList clips = new ArrayList();
-                        int totalNum = int.Parse(_TotalNumNode.InnerText);
-                        int totalPage = totalNum / 30;
-                        int index = 0;
-                        if (totalNum % 30 != 0) totalPage++;
-                        for (int i = 1; i <= totalPage; i++)
-                        {
-                            _Document = new HtmlWeb().Load("https://xhamster48.com/users/" + _Series.Name + "/videos/" + i);
-                            HtmlNodeCollection _ClipNodes = _Document.DocumentNode.SelectNodes("//div[contains(@class, 'thumb-list__item video-thumb role-pop')]");
-                            foreach (HtmlNode clipNode in _ClipNodes)
-                            {
-                                int _ClipNum = totalNum - index;
-                                string _ClipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name role-pop')]").InnerText.Trim();
-                                string _ClipImageUrl = "ClipNull";
-                                if (clipNode.SelectSingleNode(clipNode.XPath + "//img[contains(@class, 'thumb-image-container__image')]") != null)
-                                {
-                                    _ClipImageUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img[contains(@class, 'thumb-image-container__image')]").GetAttributeValue("src", "");
-                                }
-                                string _ClipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb__image-container role-pop thumb-image-container')]").GetAttributeValue("href", "");
-                                clips.Add(new string[] { _ClipNum.ToString(), _ClipTitle, _ClipImageUrl, _ClipUrl });
-                                index++;
-                            }
-                        }
-
-                        foreach (string[] clipString in clips)
-                        {
-                            int clipNum = int.Parse(clipString[0]);
-                            string imageUrl = clipString[2];
-                            string clipPic = "";
-                            clipPic = FromUrlToImage(imageUrl, "D:/VideoTemp/html/" + _Series.Name + "_small_" + clipNum + ".jpg");
-                            //clipPic = "ClipNull";
-                            try
-                            {
-                                ClipDao.GetClipDao().CreateClip(203, _Series.Id, clipNum, clipString[1], DateTime.Parse("1980-1-1"), "", clipPic, "", 0, clipString[3]);
-                                Console.WriteLine(clipNum.ToString() + " / " + clipString[3] + imageUrl + " / " + clipPic + "--> success");
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(clipNum.ToString() + " / " + clipString[3] + imageUrl + " / " + clipPic + "--> error");
-                            }
-                        }
-                        driver = null;
-                    }
-                    else
-                    {
-                        MessageBox.Show("已取消操作");
-                        driver = null;
-
-                    }
-                });
-                th.Start();
-                th.IsBackground = true;
-            }
-            else
-            {
-                Thread th = new Thread(delegate ()
-                {
-                    string url = "https://www.xhamster.com/gay/creators/" + _Series.Name.ToLower() + "/newest";
-                    Console.WriteLine(url);
-                    HtmlDocument _Document = new HtmlWeb().Load(url);
-
-                    string VideoNum = _Document.DocumentNode.SelectSingleNode("//div[contains(@class, 'landing-info__metric-value')]").InnerText;
-                    Console.WriteLine(VideoNum);
-
-                    ArrayList clips = new ArrayList();
-                    Clip _LastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(_Series.Id); 
-
-
-                    HtmlNodeCollection _ClipNodes = _Document.DocumentNode.SelectNodes("//div[contains(@class, 'thumb-list__item')]");
-                    bool isLast = false;
-                    int index = 1;
-                    foreach (HtmlNode clipNode in _ClipNodes)
-                    {
-                        string _ClipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name')]").InnerText.Trim();
-
-                        string _ClipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name')]").GetAttributeValue("href", "").Replace("xhamster.com", "localxh2.com") ;
-                        if (string.Equals(_ClipTitle, _LastClip.Title)) isLast = true;
-                        if (!isLast) clips.Add(new string[] { index.ToString(), _ClipTitle, _ClipUrl });
-                        index++;
-                    }
-                    foreach (string[] clipString in clips)
-                    {
-                        int clipNum = _LastClip.Number + clips.Count - int.Parse(clipString[0]) + 1;
-                        Console.WriteLine("ClipNum: " + clipNum + " / Title: " + clipString[1] + "Url: " + clipString[2]);
-                        ClipDao.GetClipDao().CreateClip(203, _Series.Id, clipNum, clipString[1], DateTime.Parse("1980-1-1"), "", "ClipNull", "", 0, clipString[2]);
-                    }
-
-
-                });
-                th.Start();
-                th.IsBackground = true;
-            }
-        }
-
-        public void ScraperXhamsterClipVideo(Series _Series)
-        {
-            Thread th = new Thread(delegate ()
-            {
-                int overnum = 0;
-                ArrayList videoUrls = new ArrayList();
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
                 {
-                    ObservableCollection<Clip> _Clips = ClipDao.GetClipDao().GetAllClipsFromXhamster(_Series.Id);
-                    foreach (Clip _Clip in _Clips)
+                    StartChrome();
+
+                    if (!File.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html"))
                     {
-                        if (overnum < 1)
+                        driver.Url = "https://xhamster.com/users/" + _Series.Name.ToLower() + "/videos";
+                        Thread.Sleep(15000);
+                        if (!Directory.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd"))) Directory.CreateDirectory(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd"));
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html", driver.PageSource);
+                    }
+
+                    HtmlDocument _Document = new HtmlWeb().Load(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\main.html");
+
+                    HtmlNode _TotalNumNode = _Document.DocumentNode.SelectSingleNode("//a[contains(@class, 'active current-tab followable videos')]/span");
+                    Console.WriteLine(_TotalNumNode.InnerHtml);
+
+
+                    ArrayList clips = new ArrayList();
+                    int totalNum = int.Parse(_TotalNumNode.InnerText);
+                    int totalPage = totalNum / 30;
+                    int index = 0;
+                    if (totalNum % 30 != 0) totalPage++;
+                    for (int i = 1; i <= totalPage; i++)
+                    {
+
+                        if (!File.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + i + ".html"))
                         {
-                            if (_Clip.Finish == 0)
+                            driver.Url = "https://xhamster.com/users/" + _Series.Name.ToLower() + "/videos" + @"/" + i;
+                            Thread.Sleep(15000);
+                            if (!Directory.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd"))) Directory.CreateDirectory(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd"));
+                            System.IO.File.WriteAllText(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + i + ".html", driver.PageSource);
+                        }
+
+                        _Document = new HtmlWeb().Load(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + i + ".html");
+
+
+                        HtmlNodeCollection _ClipNodes = _Document.DocumentNode.SelectNodes("//div[contains(@class, 'thumb-list__item video-thumb')]");
+                        foreach (HtmlNode clipNode in _ClipNodes)
+                        {
+                            int _ClipNum = totalNum - index;
+                            string _ClipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name role-pop')]").InnerText.Trim();
+                            string _ClipImageUrl = "ClipNull";
+                            if (clipNode.SelectSingleNode(clipNode.XPath + "//img[contains(@class, 'thumb-image-container__image')]") != null)
                             {
-                                Console.WriteLine(_Clip.ClipUrl);
-                                HtmlDocument _Document = null;
-
-                                Boolean isload = false;
-                                int testnum = 1;
-                                while (!isload)
-                                {
-                                    try
-                                    {
-                                        Console.WriteLine("第" + testnum + "次尝试");
-                                        testnum++;
-                                        _Document = new HtmlWeb().Load(_Clip.ClipUrl);
-                                        isload = true;
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Console.WriteLine("ExceptionFrom: " + _Clip.Number);
-                                        Console.WriteLine(ex.Message);
-                                    }
-                                }
-
-                                //_Document.DocumentNode.SelectSingleNode("//a[contains(@class, 'active current-tab followable videos')]/span");
-                                Console.WriteLine("####" + _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'fetch')]").GetAttributeValue("href", ""));
-                                Console.WriteLine("####" + _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'image')]").GetAttributeValue("href", ""));
-
-                                videoUrls.Add(new string[] { "D:/VideoTemp/html/m3u8/" + _Series.Name + "_" + _Clip.Number + ".m3u8", _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'fetch')]").GetAttributeValue("href", ""), _Series.Name + "_" + _Clip.Number });
-                                FromUrlToImage(_Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'image')]").GetAttributeValue("href", ""), "D:/VideoTemp/html/" + _Series.Name + "_" + _Clip.Number + ".jpg");
-                                ClipDao.GetClipDao().UpdateClip(_Clip.Id, _Clip.Number, _Clip.Title, _Clip.Date, _Clip.Description, ImageFileService.SaveBitmapImage(ImageFileService.GetImage("D:/VideoTemp/html/" + _Series.Name + "_" + _Clip.Number + ".jpg")), _Clip.FilePath, _Clip.Start, _Clip.ClipUrl);
+                                _ClipImageUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img[contains(@class, 'thumb-image-container__image')]").GetAttributeValue("src", "");
                             }
-                            overnum++;
+                            string _ClipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb__image-container role-pop thumb-image-container')]").GetAttributeValue("href", "");
+                            clips.Add(new string[] { _ClipNum.ToString(), _ClipTitle, _ClipImageUrl, _ClipUrl });
+                            index++;
                         }
                     }
-                    foreach (string[] videoUrl in videoUrls)
+
+                    foreach (string[] clipString in clips)
                     {
-                        string webserverurl = videoUrl[1].Replace("https://", "").Split("/".ToCharArray())[0];
-                        string BestM3U8Url = "";
-                        if (videoUrl[1].Contains("_TPL_.h264.mp4.m3u8"))
+                        int clipNum = int.Parse(clipString[0]);
+                        string imageUrl = clipString[2];
+                        string clipPic = "";
+                        clipPic = FromUrlToImage(imageUrl, "D:/VideoTemp/html/" + _Series.Name + "_small_" + clipNum + ".jpg");
+                        //clipPic = "ClipNull";
+                        try
                         {
-                            BestM3U8Url = videoUrl[1].Replace("_TPL_.h264.mp4.m3u8", FromUrlSelectBestVideo(videoUrl[1]));
-
-
-                            
+                            ClipDao.GetClipDao().CreateClip(203, _Series.Id, clipNum, clipString[1], DateTime.Parse("1980-1-1"), "", clipPic, "", 0, clipString[3]);
+                            Console.WriteLine(clipNum.ToString() + " / " + clipString[3] + imageUrl + " / " + clipPic + "--> success");
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            BestM3U8Url = "https://" + webserverurl + videoUrl[1].Split("/hls/".ToCharArray())[0] + FromUrlSelectBestVideo(videoUrl[1]);
+                            Console.WriteLine(clipNum.ToString() + " / " + clipString[3] + imageUrl + " / " + clipPic + "--> error");
                         }
-
-
-
-                        Console.WriteLine("========videoUrl[0]" + videoUrl[0]);
-                        Console.WriteLine("========videoUrl[1]" + videoUrl[1]);
-                        Console.WriteLine("========BestM3U8Url" + BestM3U8Url);
-
-
-
-                        FromUrlToFile(BestM3U8Url, videoUrl[0]);
-                        System.Diagnostics.Process process = System.Diagnostics.Process.Start(@"C:\Program Tools\Media Tools\N_m3u8DL-CLI\N_m3u8DL-CLI.exe", videoUrl[0] + " --workDir D:\\VideoTemp\\xhamster --saveName " + videoUrl[2] + " --headers \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36\" --retryCount 3");
-                        //process.WaitForExit();
                     }
+                    driver = null;
+                    QuitChrome();
                 }
                 else
                 {
                     MessageBox.Show("已取消操作");
+                    driver = null;
+                    QuitChrome();
+
+                }
+            }
+            else
+            {
+                string url = "https://www.xhamster.com/gay/creators/" + _Series.Name.ToLower() + "/newest";
+                Console.WriteLine(url);
+                HtmlDocument _Document = new HtmlWeb().Load(url);
+
+                string VideoNum = _Document.DocumentNode.SelectSingleNode("//div[contains(@class, 'landing-info__metric-value')]").InnerText;
+                Console.WriteLine(VideoNum);
+
+                ArrayList clips = new ArrayList();
+                Clip _LastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(_Series.Id);
+
+
+                HtmlNodeCollection _ClipNodes = _Document.DocumentNode.SelectNodes("//div[contains(@class, 'thumb-list__item')]");
+                bool isLast = false;
+                int index = 1;
+                foreach (HtmlNode clipNode in _ClipNodes)
+                {
+                    string _ClipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name')]").InnerText.Trim();
+
+                    string _ClipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a[contains(@class, 'video-thumb-info__name')]").GetAttributeValue("href", "").Replace("xhamster.com", "localxh2.com");
+                    if (string.Equals(_ClipTitle, _LastClip.Title)) isLast = true;
+                    if (!isLast) clips.Add(new string[] { index.ToString(), _ClipTitle, _ClipUrl });
+                    index++;
+                }
+                foreach (string[] clipString in clips)
+                {
+                    int clipNum = _LastClip.Number + clips.Count - int.Parse(clipString[0]) + 1;
+                    Console.WriteLine("ClipNum: " + clipNum + " / Title: " + clipString[1] + "Url: " + clipString[2]);
+                    ClipDao.GetClipDao().CreateClip(203, _Series.Id, clipNum, clipString[1], DateTime.Parse("1980-1-1"), "", "ClipNull", "", 0, clipString[2]);
                 }
 
-            });
-            th.Start();
-            th.IsBackground = true;
+
+            }
+            QuitChrome();
+        }
+
+        public void ScraperXhamsterClipVideo(Series _Series)
+        {
+            int overnum = 0;
+            ArrayList videoUrls = new ArrayList();
+            MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (dr == MessageBoxResult.OK)
+            {
+                StartChrome();
+
+                ObservableCollection<Clip> _Clips = ClipDao.GetClipDao().GetAllClipsFromXhamster(_Series.Id);
+                foreach (Clip _Clip in _Clips)
+                {
+                    if (overnum < 1)
+                    {
+                        if (_Clip.Finish == 0)
+                        {
+                            Console.WriteLine(_Clip.ClipUrl);
+                            HtmlDocument _Document = null;
+
+                            Boolean isload = false;
+                            int testnum = 1;
+                            while (!isload)
+                            {
+                                try
+                                {
+                                    Console.WriteLine("第" + testnum + "次尝试");
+                                    testnum++;
+
+                                    if (!File.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\Download\" + _Clip.Number + ".html"))
+                                    {
+                                        driver.Url = _Clip.ClipUrl;
+                                        Thread.Sleep(15000);
+                                        if (!Directory.Exists(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\Download\")) Directory.CreateDirectory(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\Download\");
+                                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\xamster\" + _Series.Name.ToLower() + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\Download\" + _Clip.Number + ".html", driver.PageSource);
+                                    }
+
+                                    _Document = new HtmlWeb().Load(_Clip.ClipUrl);
+                                    Console.WriteLine(_Document.Text);
+                                    isload = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("ExceptionFrom: " + _Clip.Number);
+                                    Console.WriteLine(ex.Message);
+                                }
+                            }
+
+                            //_Document.DocumentNode.SelectSingleNode("//a[contains(@class, 'active current-tab followable videos')]/span");
+                            Console.WriteLine("####" + _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'fetch')]").GetAttributeValue("href", ""));
+                            Console.WriteLine("####" + _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'image')]").GetAttributeValue("href", ""));
+
+                            videoUrls.Add(new string[] { "D:/VideoTemp/html/m3u8/" + _Series.Name + "_" + _Clip.Number + ".m3u8", _Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'fetch')]").GetAttributeValue("href", ""), _Series.Name + "_" + _Clip.Number });
+                            FromUrlToImage(_Document.DocumentNode.SelectSingleNode("//link[contains(@as, 'image')]").GetAttributeValue("href", ""), "D:/VideoTemp/html/" + _Series.Name + "_" + _Clip.Number + ".jpg");
+                            ClipDao.GetClipDao().UpdateClip(_Clip.Id, _Clip.Number, _Clip.Title, _Clip.Date, _Clip.Description, ImageFileService.SaveBitmapImage(ImageFileService.GetImage("D:/VideoTemp/html/" + _Series.Name + "_" + _Clip.Number + ".jpg")), _Clip.FilePath, _Clip.Start, _Clip.ClipUrl);
+                        }
+                        overnum++;
+                    }
+                    QuitChrome();
+                }
+                foreach (string[] videoUrl in videoUrls)
+                {
+                    string webserverurl = videoUrl[1].Replace("https://", "").Split("/".ToCharArray())[0];
+                    string BestM3U8Url = "";
+                    if (videoUrl[1].Contains("_TPL_.h264.mp4.m3u8"))
+                    {
+                        BestM3U8Url = videoUrl[1].Replace("_TPL_.h264.mp4.m3u8", FromUrlSelectBestVideo(videoUrl[1]));
+
+
+
+                    }
+                    else
+                    {
+                        BestM3U8Url = "https://" + webserverurl + videoUrl[1].Split("/hls/".ToCharArray())[0] + FromUrlSelectBestVideo(videoUrl[1]);
+                    }
+
+
+
+                    Console.WriteLine("========videoUrl[0]" + videoUrl[0]);
+                    Console.WriteLine("========videoUrl[1]" + videoUrl[1]);
+                    Console.WriteLine("========BestM3U8Url" + BestM3U8Url);
+
+
+
+                    FromUrlToFile(BestM3U8Url, videoUrl[0]);
+                    System.Diagnostics.Process process = System.Diagnostics.Process.Start(@"C:\Program Tools\Media Tools\N_m3u8DL-CLI\N_m3u8DL-CLI.exe", videoUrl[0] + " --workDir D:\\VideoTemp\\xhamster --saveName " + videoUrl[2] + " --headers \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36\" --retryCount 3");
+                    //process.WaitForExit();
+                }
+            }
+            else
+            {
+                MessageBox.Show("已取消操作");
+            }
+
         }
 
         public void ScraperJustForfansClipAll(Series _Series)
@@ -860,7 +880,7 @@ namespace com.gestapoghost.entertainment.service
 
             MessageBoxResult jffphotombr = MessageBox.Show("图片是否下载完毕？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (jffphotombr == MessageBoxResult.OK)
-            { 
+            {
 
                 for (int aaa = 0; aaa <= _index; aaa++)
                 {
@@ -875,7 +895,7 @@ namespace com.gestapoghost.entertainment.service
                 }
             }
 
-        System.IO.File.WriteAllText(@"D:\VideoTemp\JFF\" + _Series.Id + ".json", download_json.ToString());
+            System.IO.File.WriteAllText(@"D:\VideoTemp\JFF\" + _Series.Id + ".json", download_json.ToString());
 
 
         }
@@ -1023,7 +1043,7 @@ namespace com.gestapoghost.entertainment.service
 
         public void ScraperJustForfansClipVideo(Series _Series)
         {
-            string jsonfile = @"D:\VideoTemp\JFF\" + _Series.Id +  ".json";//JSON文件路径
+            string jsonfile = @"D:\VideoTemp\JFF\" + _Series.Id + ".json";//JSON文件路径
             using (System.IO.StreamReader file = System.IO.File.OpenText(jsonfile))
             {
                 using (JsonTextReader reader = new JsonTextReader(file))
@@ -1061,7 +1081,8 @@ namespace com.gestapoghost.entertainment.service
 
         public void ScraperUpdateClip(string webString)
         {
-            Thread th = new Thread(delegate () {
+            Thread th = new Thread(delegate ()
+            {
 
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
@@ -1081,7 +1102,8 @@ namespace com.gestapoghost.entertainment.service
         public void ScraperAllUpdateClip()
         {
 
-            Thread th = new Thread(delegate () {
+            Thread th = new Thread(delegate ()
+            {
 
                 //StartChrome();
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
@@ -1189,7 +1211,7 @@ namespace com.gestapoghost.entertainment.service
                     List<string> _Actors = new List<string>();
 
                     foreach (HtmlNode actionNode in actionNodes) _Actors.Add(actionNode.InnerText);
-                    
+
                     clipDescription += string.Join(", ", _Actors);
                     clipDescription += "  **//";
 
@@ -1273,7 +1295,11 @@ namespace com.gestapoghost.entertainment.service
                     string clipDate = "";
 
                     HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
-                    string clipDescription = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'med-text')]").InnerText.Trim();
+                    string description_text = "";
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'med-text')]") != null) description_text = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'med-text')]").InnerText.Trim();
+
+
+                    string clipDescription = description_text;
 
 
                     if (clipTitle.ToLower().Contains(lastClip.Title.ToLower())) isLast = true;
@@ -1365,7 +1391,7 @@ namespace com.gestapoghost.entertainment.service
                     if (!isLast)
                     {
                         string clipImgUrl = "";
-                        string clipUrl = "https://barebackthathole.com/tour/updates/" + clipTitle.Replace(" ", "-") +  ".html?nats=MC4yLjEuMS4wLjAuMC4wLjA";
+                        string clipUrl = "https://barebackthathole.com/tour/updates/" + clipTitle.Replace(" ", "-") + ".html?nats=MC4yLjEuMS4wLjAuMC4wLjA";
                         Console.WriteLine(clipUrl);
 
                         string clipDescription = "";
@@ -1978,8 +2004,8 @@ namespace com.gestapoghost.entertainment.service
                             System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + clipTitle.Replace(":", "_").Replace("?", "_") + ".html", driver.PageSource);
                         }
                         HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + webString + @"\" + DateTime.Now.ToString("yyyy-MM-dd") + @"\" + clipTitle.Replace(":", "_").Replace("?", "_") + ".html");
-                        
-                        if(clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[1]/div[2]/div/div/div/span[2]/div[2]") != null)
+
+                        if (clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[1]/div[2]/div/div/div/span[2]/div[2]") != null)
                             clipDescription = clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[1]/div[2]/div/div/div/span[2]/div[2]").InnerText.Trim();
 
                         if (clipDocument.DocumentNode.SelectSingleNode("//*[@id='root']/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/img") != null)
@@ -1993,7 +2019,7 @@ namespace com.gestapoghost.entertainment.service
                                 clipImgUrl = clipDocument.DocumentNode.SelectSingleNode("/html/body/div/div[1]/div[2]/div[1]/div[2]/div[1]/div/section/div[2]/div/section/div/div/div[1]").GetAttributeValue("style", "").Replace("background-image: url(&quot;", "").Replace("&quot;);", "");
                             }
                             else
-                            { 
+                            {
                                 clipImgUrl = "";
                             }
                         }
@@ -2110,7 +2136,8 @@ namespace com.gestapoghost.entertainment.service
                         string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'sceneDetails')]").InnerText.Trim().Replace("Details: ", "").Split(new string[] { "&nbsp;&nbsp;" }, StringSplitOptions.None)[0];
 
                         HtmlNodeCollection _StarNodes = clipNode.SelectNodes(clipNode.XPath + "//div[contains(@class, 'scenePerformers')]//span[contains(@class, 'perfName')]");
-                        if(_StarNodes != null) { 
+                        if (_StarNodes != null)
+                        {
 
                             foreach (HtmlNode _StarNode in _StarNodes)
                             {
@@ -2295,7 +2322,7 @@ namespace com.gestapoghost.entertainment.service
                         }
 
 
-                        if(!clipTitle2.Contains("TRAILER:")) clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
+                        if (!clipTitle2.Contains("TRAILER:")) clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
 
                     }
 
@@ -2333,8 +2360,8 @@ namespace com.gestapoghost.entertainment.service
                         clipDate = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'content-date')]").InnerText.Split("|".ToCharArray())[0].Trim();
 
                         string clipDescription = "";
-                        
-                        
+
+
                         if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'content-details')]/p") != null)
                             clipDescription = clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'content-details')]/p").InnerText.Trim();
 
@@ -2373,7 +2400,7 @@ namespace com.gestapoghost.entertainment.service
                         string clipUrl = "https://www.mansurfer.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
 
                         string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[2]").InnerHtml.Trim();
-                        
+
                         HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
 
                         string clipDescription = clipDocument.DocumentNode.SelectSingleNode("//meta[contains(@name, 'description')]").GetAttributeValue("content", "");
@@ -2435,7 +2462,7 @@ namespace com.gestapoghost.entertainment.service
             {
                 Console.WriteLine("https://www.richard.xxx/new-porn-videos?page=" + webString.Replace("Richard XXX - Richard XXX", "") + "#pageTop");
                 document = new HtmlWeb().Load("https://www.richard.xxx/new-porn-videos?page=" + webString.Replace("Richard XXX - Richard XXX", "") + "#pageTop");
-                
+
 
 
 
@@ -2453,7 +2480,7 @@ namespace com.gestapoghost.entertainment.service
                     if (!isLast)
                     {
                         string clipImgUrl = "";
-                        
+
                         string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
 
                         string clipDate = "";
@@ -3118,7 +3145,7 @@ namespace com.gestapoghost.entertainment.service
 
 
                 string urlhead = webUrl.Replace(webUrl.Split("/".ToCharArray())[webUrl.Split("/".ToCharArray()).Length - 1], "");
-                
+
 
 
                 Console.WriteLine("URLHEAD:" + urlhead);
@@ -3137,7 +3164,7 @@ namespace com.gestapoghost.entertainment.service
                             {
                                 lines[i] = urlhead + lines[i];
                             }
-                            
+
                         }
                     }
                 }
@@ -3168,26 +3195,26 @@ namespace com.gestapoghost.entertainment.service
 
 
             if ("gzip".Equals(res.ContentEncoding))
-             {
-                 responseStream = new System.IO.Compression.GZipStream(res.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress);
+            {
+                responseStream = new System.IO.Compression.GZipStream(res.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress);
                 Console.WriteLine("Gzip");
-             }
-             else if ("deflate".Equals(res.ContentEncoding))
-             {
-                 responseStream = new System.IO.Compression.DeflateStream(res.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress);
+            }
+            else if ("deflate".Equals(res.ContentEncoding))
+            {
+                responseStream = new System.IO.Compression.DeflateStream(res.GetResponseStream(), System.IO.Compression.CompressionMode.Decompress);
                 Console.WriteLine("Deflate");
             }
-             else
-             {
-                 responseStream = res.GetResponseStream();
-             }
+            else
+            {
+                responseStream = res.GetResponseStream();
+            }
 
 
-             if (responseStream != null)
-             {
-                 StreamReader streamReader = new StreamReader(responseStream, System.Text.Encoding.UTF8);
-                 m3u8 = streamReader.ReadToEnd();
-             }
+            if (responseStream != null)
+            {
+                StreamReader streamReader = new StreamReader(responseStream, System.Text.Encoding.UTF8);
+                m3u8 = streamReader.ReadToEnd();
+            }
 
             string[] lines = m3u8.Split("\n".ToCharArray());
 
@@ -3301,7 +3328,7 @@ namespace com.gestapoghost.entertainment.service
                 }
             }
         }
-        
+
         private string[] ProxyFromWebUrl(string webUrl)
         {
             if (webUrl.Contains("www.kristenbjorn.com"))
@@ -3341,8 +3368,8 @@ namespace com.gestapoghost.entertainment.service
 
         private void QuitChrome()
         {
-            if(driver != null)
-            { 
+            if (driver != null)
+            {
                 driver.Quit();
                 driver.Dispose();
                 driver = null;
