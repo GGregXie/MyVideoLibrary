@@ -1189,7 +1189,6 @@ namespace com.gestapoghost.entertainment.service
             else if (string.Equals(webString, "Hot Older Male"))
             {
                 //"https://www.hotoldermale.com/scenes?Page=1"
-
                 document = new HtmlWeb().Load("https://www.hotoldermale.com/scenes?Page=1");
                 clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'lstEachScene')]");
 
@@ -1924,6 +1923,7 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (string.Equals(webString, "Butch Dixon - Butch Dixon"))
             {
+                //"https://www.butchdixon.com/tour/show.php?a=744_1&uvar=MC4yLjQwLjEyNy4wLjAuMC4wLjA"
                 document = new HtmlWeb().Load("https://www.butchdixon.com/tour/show.php?a=744_1&uvar=MC4yLjQwLjEyNy4wLjAuMC4wLjA");
                 clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'itemv')]");
                 lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(45);
