@@ -2376,6 +2376,75 @@ namespace com.gestapoghost.entertainment.service
                 ConsoleWrite(webString, clips);
                 ScraperClips(clips, 288, 0);
             }
+            else if (string.Equals(webString, "Muscle Bear Porn - Muscle Bear Porn"))
+            {
+                document = new HtmlWeb().Load("https://musclebearporn.com/tour/category.php?id=5&page=1&s=d");
+
+
+                clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'col-sm-6 col-md-6 col-lg-4 col-xl-4 col-xxl-3 ol-xxl-3 video-thumb')]");
+
+
+                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(687);
+
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+
+                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("title", "").Trim();
+                    if (string.Equals(clipTitle, lastClip.Title)) isLast = true;
+                    if (!isLast)
+                    {
+                        string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Trim();
+                        string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                        string clipNumber = clipUrl.Replace("https://musclebearporn.com/tour/index.php?id=", "");
+                        string clipDate = "";
+                        string clipDescription = "";
+
+                        HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
+
+                        foreach (HtmlNode h4node in clipDocument.DocumentNode.SelectNodes("//div[contains(@class, 'panel-body')]//h4"))
+                        {
+                            if (h4node.InnerHtml.Trim().Contains("Release Date"))
+                            {
+                                clipDate = h4node.InnerHtml.Trim().Replace("Release Date: ", "");
+                            }
+                        }
+
+
+                        HtmlNode actionSpanNode = clipDocument.DocumentNode.SelectSingleNode("//span[contains(@class, 'update_models')]");
+                        if (actionSpanNode != null)
+                        {
+
+                            int actionnum = 1;
+
+                            HtmlNodeCollection actionNodes = actionSpanNode.SelectNodes(actionSpanNode.XPath + "//a");
+
+                            foreach (HtmlNode actionNode in actionNodes)
+                            {
+                                clipDescription += actionNode.InnerText;
+                                if (actionnum != actionNodes.Count) clipDescription += ", ";
+                                actionnum++;
+                            }
+
+
+                        }
+                        
+                            
+                            
+                        clipDescription += "\n\n";
+                        clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'video-seo-description')]").InnerText.Trim();
+
+
+
+
+                        clips.Add(new string[] { clipNumber, clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                    }
+
+                    resultNum++;
+                }
+                ConsoleWrite(webString, clips);
+                ScraperClips(clips, 143, 687);
+            }
             else if (string.Equals(webString, "Stud Fist - Stud Fist"))
             {
                 document = new HtmlWeb().Load("https://www.mansurfer.com/channel/101/stud-fist/1/");
