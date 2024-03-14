@@ -408,6 +408,22 @@ namespace com.gestapoghost.entertainment.Dao.MySQL
             BaseDao.getBaseDao().ExecuteSQL(strSQL, parameters);
         }
 
+        public void SetOneDriveById(int clipId, int size)
+        {
+
+            string strSQL = "update clip set finish = 9, size = @size where id = @id";
+            MySqlParameter[] parameters = {
+                new MySqlParameter(){ ParameterName = "@id",    DbType = DbType.Int32, Value = clipId },
+                new MySqlParameter(){ ParameterName = "@size",  DbType = DbType.Int32, Value = size }
+            };
+            BaseDao.getBaseDao().ExecuteSQL(strSQL, parameters);
+        }
+
+
+
+
+
+
         public void SetClipXCIFinishById(int clipId, int size)
         {
             string strSQL = "update clip set finish = 3, size = @size where id = @id";

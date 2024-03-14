@@ -76,6 +76,8 @@ namespace com.gestapoghost.entertainment.entity
                     return "CIA";
                 else if (this._Finish == 5)
                     return "NSZ";
+                else if (this._Finish == 9)
+                    return "OD";
                 else
                     return "";
             }

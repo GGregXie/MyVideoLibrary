@@ -68,6 +68,7 @@
                                         <MenuItem Header="提取" Tag="{Binding }" Click="PickupMenuItem_Click" />
                                         <MenuItem Header="补下" Tag="{Binding }" Click="SupplementMenuItem_Click" />
                                         <MenuItem Header="复制" Tag="{Binding }" Click="CopyMenuItem_Click" />
+                                        <MenuItem Header="网盘" Tag="{Binding }" Click="OneDriveMenuItem_Click" />
                                         <MenuItem Header="清理标记" Tag="{Binding }" Click="ClearTagMenuItem_Click" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>

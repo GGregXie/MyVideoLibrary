@@ -36,6 +36,11 @@ namespace com.gestapoghost.entertainment.service
             ClipDao.GetClipDao().SetFinishClearById(_Clip.Id, 0);
         }
 
+        public void SetOneDrive(Clip _Clip)
+        {
+            ClipDao.GetClipDao().SetOneDriveById(_Clip.Id, 0);
+        }
+
         public void FinishClipNSP(Clip _Clip, int size)
         {
             ClipDao.GetClipDao().SetClipNSPFinishById(_Clip.Id, size);

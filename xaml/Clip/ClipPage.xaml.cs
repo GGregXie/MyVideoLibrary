@@ -496,6 +496,15 @@ namespace com.gestapoghost.entertainment.xaml.clip
             InitPage();
         }
 
+        private void OneDriveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Clip _Clip = (sender as MenuItem).Tag as Clip;
+            ClipService.GetClipService().SetOneDrive(_Clip);
+            _Clip.Finish = 0;
+            MessageBox.Show("成功设置网盘");
+            InitPage();
+        }
+
         private void HasVideoRadio_Click(object sender, RoutedEventArgs e)
         {
             if (AllVideoRadio.IsChecked == true)
