@@ -1208,7 +1208,7 @@ namespace com.gestapoghost.entertainment.service
                     string[] testurls = clipUrl.Split('/');
                     string clipId = testurls[testurls.Length - 1].Split('-')[0];
                     clipUrl = "https://www.hotoldermale.com" + clipUrl;
-                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'wrapperSceneTitle')]").InnerText.Trim();
+                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'wrapperSceneTitle')]").InnerText.Trim().Replace("&#039;", "'").Replace("&quot;", "\"");
                     string clipImgUrl = "";
 
                     if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null)
@@ -1257,7 +1257,7 @@ namespace com.gestapoghost.entertainment.service
 
                     foreach (HtmlNode htmlNode in clipDocument.DocumentNode.SelectNodes("//div[contains(@class, 'p-5')]"))
                     {
-                        clipDescription += htmlNode.InnerText.Trim();
+                        clipDescription += htmlNode.InnerText.Trim().Replace("&#039;", "'").Replace("&quot;", "\"");
                         clipDescription += "\n\n";
                     }
 
