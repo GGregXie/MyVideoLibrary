@@ -1110,7 +1110,7 @@ namespace com.gestapoghost.entertainment.service
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
                 {
-                    //ScraperUpdate("Hot Older Male");
+                    ScraperUpdate("Hot Older Male");
                     //ScraperUpdate("Men At Play");
                     //ScraperUpdate("Lucas Entertainment - Lucas Entertainment");
                     //ScraperUpdate("Kristen Bjorn - Casting Couch");
@@ -1128,10 +1128,10 @@ namespace com.gestapoghost.entertainment.service
                     //QuitChrome();
 
 
-                    for (int i = 1; i < 17; i++)
-                    {
-                        ScraperUpdate("Test" + i);
-                    }
+                    //for (int i = 1; i < 17; i++)
+                    //{
+                    //    ScraperUpdate("Test" + i);
+                    //}
 
 
 
