@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using OpenQA.Selenium.Interactions;
 using System.Collections.Generic;
+using System.Text;
 
 namespace com.gestapoghost.entertainment.service
 {
@@ -1109,7 +1110,7 @@ namespace com.gestapoghost.entertainment.service
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
                 {
-                    ScraperUpdate("Hot Older Male");
+                    //ScraperUpdate("Hot Older Male");
                     //ScraperUpdate("Men At Play");
                     //ScraperUpdate("Lucas Entertainment - Lucas Entertainment");
                     //ScraperUpdate("Kristen Bjorn - Casting Couch");
@@ -1127,10 +1128,10 @@ namespace com.gestapoghost.entertainment.service
                     //QuitChrome();
 
 
-                    //for (int i = 3; i > 0; i--)
-                    //{
-                    //    ScraperUpdate("Hot Older Male - Hot Older Male" + i);
-                    //}
+                    for (int i = 1; i < 17; i++)
+                    {
+                        ScraperUpdate("Test" + i);
+                    }
 
 
 
@@ -1185,6 +1186,28 @@ namespace com.gestapoghost.entertainment.service
                 ChangeClipsNum(lastClip.Number, clips);
                 ConsoleWrite(webString, clips);
                 ScraperClips(clips, 9, 498);
+            }
+            else if (webString.Contains("Test"))
+            {
+                //"https://store.playstation.com/zh-hant-hk/category/05a2d027-cedc-4ac0-abeb-8fc26fec7180/1"
+
+
+                document = new HtmlWeb().Load("https://store.playstation.com/zh-hant-hk/category/05a2d027-cedc-4ac0-abeb-8fc26fec7180/" + webString.Replace("Test", ""));
+                clipNodes = document.DocumentNode.SelectNodes("//li[contains(@class, 'psw-l-w-1/2@mobile-s psw-l-w-1/2@mobile-l psw-l-w-1/6@tablet-l psw-l-w-1/4@tablet-s psw-l-w-1/6@laptop psw-l-w-1/8@desktop psw-l-w-1/8@max')]");
+
+
+
+
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//span[contains(@class, 'psw-t-body psw-c-t-1 psw-t-truncate-2 psw-m-b-2')]").InnerText.Trim();
+                    using (StreamWriter sw = new StreamWriter(@"c:\temp.txt", true))
+                    {
+                        sw.WriteLine(clipUrl);
+
+                    }
+                }
+
             }
             else if (string.Equals(webString, "Hot Older Male - Hot Older Male"))
             {
