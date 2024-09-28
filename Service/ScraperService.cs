@@ -1110,7 +1110,8 @@ namespace com.gestapoghost.entertainment.service
                 MessageBoxResult dr = MessageBox.Show("是否准备就绪？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (dr == MessageBoxResult.OK)
                 {
-                    ScraperUpdate("Hot Older Male");
+                    //ScraperUpdate("Hot Older Male - Hot Older Male");
+                    //ScraperUpdate("Test");
                     //ScraperUpdate("Men At Play");
                     //ScraperUpdate("Lucas Entertainment - Lucas Entertainment");
                     //ScraperUpdate("Kristen Bjorn - Casting Couch");
@@ -1128,9 +1129,9 @@ namespace com.gestapoghost.entertainment.service
                     //QuitChrome();
 
 
-                    //for (int i = 1; i < 17; i++)
+                    //for (int i = 5; i > 0; i--)
                     //{
-                    //    ScraperUpdate("Test" + i);
+                    //    ScraperUpdate("Stud Fist - Stud Fist" + i);
                     //}
 
 
@@ -1189,23 +1190,29 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (webString.Contains("Test"))
             {
-                //"https://store.playstation.com/zh-hant-hk/category/05a2d027-cedc-4ac0-abeb-8fc26fec7180/1"
+                HtmlWeb htmlweb = new HtmlWeb();
+                htmlweb.OverrideEncoding = Encoding.UTF8;
+                document = htmlweb.Load(@"d:\1.html");
+                clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'mbsc-card-content')]");
 
-
-                document = new HtmlWeb().Load("https://store.playstation.com/zh-hant-hk/category/05a2d027-cedc-4ac0-abeb-8fc26fec7180/" + webString.Replace("Test", ""));
-                clipNodes = document.DocumentNode.SelectNodes("//li[contains(@class, 'psw-l-w-1/2@mobile-s psw-l-w-1/2@mobile-l psw-l-w-1/6@tablet-l psw-l-w-1/4@tablet-s psw-l-w-1/6@laptop psw-l-w-1/8@desktop psw-l-w-1/8@max')]");
-
-
-
-
+                int i = 0;
+                
                 foreach (HtmlNode clipNode in clipNodes)
                 {
-                    string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//span[contains(@class, 'psw-t-body psw-c-t-1 psw-t-truncate-2 psw-m-b-2')]").InnerText.Trim();
-                    using (StreamWriter sw = new StreamWriter(@"c:\temp.txt", true))
-                    {
-                        sw.WriteLine(clipUrl);
+                    string runtime = "";
+                    string title = "";
 
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-text-content')]") != null) title = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-text-content')]").InnerText.Trim();
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-video-runtime')]") != null) runtime = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-video-runtime')]").InnerText.Trim();
+
+
+                    using (StreamWriter sw = new StreamWriter(@"d:\2.txt", true))
+                    {
+                        sw.WriteLine(clipNodes.Count - i + " || " + runtime + " || " + title);
                     }
+
+                        i++;
+
                 }
 
             }
@@ -1216,16 +1223,12 @@ namespace com.gestapoghost.entertainment.service
                 clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'col-lg-3 col-md-4 col-sm-6 col-xs-12 sceneBorder')]");
 
 
-                Console.WriteLine("##############################");
-                Console.WriteLine("##############################");
-                Console.WriteLine("https://www.hotoldermale.com/scenes?page=" + webString.Replace("Hot Older Male - Hot Older Male", ""));
-                Console.WriteLine("##############################");
-                Console.WriteLine("##############################");
-
-                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(688);
+                 lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(688);
 
                 foreach (HtmlNode clipNode in clipNodes)
                 {
+
+
                     string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
                     Console.WriteLine(clipUrl);
                     string[] testurls = clipUrl.Split('/');
@@ -1234,63 +1237,67 @@ namespace com.gestapoghost.entertainment.service
                     string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'wrapperSceneTitle')]").InnerText.Trim().Replace("&#039;", "'").Replace("&quot;", "\"");
                     string clipImgUrl = "";
 
-                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null)
-                    {
-                        clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Trim();
-                    }
-                    else
-                    {
-                        clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//video").GetAttributeValue("poster", "").Trim();
-                    }
-
-
-                    string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "//span[contains(@class, 'dateLbl')]").InnerText.Trim();
-                    DateTime dt = new DateTime();
-                    dt = DateTime.Parse(clipDate);
-                    string clipDescription = "";
-
-                    HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
-
-                    /**
-
-                    HtmlNodeCollection actionSpanNode = clipDocument.DocumentNode.SelectNodes("//span[contains(@class, 'perfImage')]");
-
-
-                    int actionnum = 1;
-
-                    if (actionSpanNode != null)
-                    {
-
-                        foreach (HtmlNode actionNode in actionSpanNode)
-                        {
-                            clipDescription += actionNode.InnerText;
-                            if (actionnum != actionSpanNode.Count) clipDescription += ", ";
-                            actionnum++;
-                        }
-                    }
-
-
-                    clipDescription += "\n\n";
-
-
-
-
-
-                    */
-
-                    foreach (HtmlNode htmlNode in clipDocument.DocumentNode.SelectNodes("//div[contains(@class, 'p-5')]"))
-                    {
-                        clipDescription += htmlNode.InnerText.Trim().Replace("&#039;", "'").Replace("&quot;", "\"");
-                        clipDescription += "\n\n";
-                    }
-
-
-
-
-
 
                     if (string.Equals(clipTitle.ToLower().Trim(), lastClip.Title.ToLower().Trim())) isLast = true;
-                    if (!isLast) clips.Add(new string[] { clipId, clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
+
+                    if (!isLast)
+                    { 
+
+                        if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null)
+                        {
+                            clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Trim();
+                        }
+                        else
+                        {
+                            clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//video").GetAttributeValue("poster", "").Trim();
+                        }
+
+
+                        string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "//span[contains(@class, 'dateLbl')]").InnerText.Trim();
+                        DateTime dt = new DateTime();
+                        dt = DateTime.Parse(clipDate);
+                        string clipDescription = "";
+
+                        HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
+
+                        /**
+
+                        HtmlNodeCollection actionSpanNode = clipDocument.DocumentNode.SelectNodes("//span[contains(@class, 'perfImage')]");
+
+
+                        int actionnum = 1;
+
+                        if (actionSpanNode != null)
+                        {
+
+                            foreach (HtmlNode actionNode in actionSpanNode)
+                            {
+                                clipDescription += actionNode.InnerText;
+                                if (actionnum != actionSpanNode.Count) clipDescription += ", ";
+                                actionnum++;
+                            }
+                        }
+
+
+                        clipDescription += "\n\n";
+
+
+
+
+
+                        */
+
+                        foreach (HtmlNode htmlNode in clipDocument.DocumentNode.SelectNodes("//div[contains(@class, 'p-5')]"))
+                        {
+                            clipDescription += htmlNode.InnerText.Trim().Replace("&#039;", "'").Replace("&quot;", "\"");
+                            clipDescription += "\n\n";
+                        }
+
+
+                        clips.Add(new string[] { clipId, clipTitle, clipImgUrl, clipUrl, dt.Year + "-" + dt.Month + "-" + dt.Day, clipDescription });
+
+                    }
+
 
                 }
 
@@ -2515,34 +2522,47 @@ namespace com.gestapoghost.entertainment.service
             }
             else if (string.Equals(webString, "Stud Fist - Stud Fist"))
             {
-                document = new HtmlWeb().Load("https://www.mansurfer.com/channel/101/stud-fist/1/");
+                document = new HtmlWeb().Load("https://studfist.com/categories/movies_1_d.html");
 
 
-                clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'video_link')]");
+
+                clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'photoBlock')]");
 
 
                 Console.WriteLine(clipNodes.Count);
 
-                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(554);
+                lastClip = ClipDao.GetClipDao().GetLastClipWithSeriesId(352);
 
                 foreach (HtmlNode clipNode in clipNodes)
                 {
 
-                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/a").GetAttributeValue("title", "").Trim().Replace("&amp;", "&");
+                    string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("title", "").Trim().Replace("&amp;", "&");
                     Console.WriteLine(clipTitle);
                     if (string.Equals(clipTitle, lastClip.Title)) isLast = true;
                     if (!isLast)
                     {
 
-                        string clipUrl = "https://www.mansurfer.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                        string clipUrl = clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
 
-                        string clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[2]").InnerHtml.Trim();
+                        string clipDescription = "";
+
+                        if (clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'models')]") != null)
+                        {
+                            clipDescription += clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'models')]").InnerText.Trim().Replace("&amp;", "&").Replace("\n", "").Replace("	", "");
+                            clipDescription += "\n\n";
+                        }
+
+                        string clipImgUrl = "https://www.studfist.com" + clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src0_1x", "").Trim();
+
+
+
+                        string clipDate = "1980-1-1";
 
                         HtmlDocument clipDocument = new HtmlWeb().Load(clipUrl);
 
-                        string clipDescription = clipDocument.DocumentNode.SelectSingleNode("//meta[contains(@name, 'description')]").GetAttributeValue("content", "");
-                        string clipImgUrl = clipDocument.DocumentNode.SelectSingleNode("//link[contains(@rel, 'image_src')]").GetAttributeValue("href", "").Replace("/thumbs/", "/temp/");
-                        clipDescription = clipDescription + "\n\n" + clipImgUrl;
+                        if(clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'videoDetails')]/p") != null)
+                            clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'videoDetails')]/p").InnerText.Trim().Replace("&amp;", "&");
+
 
 
                         clips.Add(new string[] { resultNum.ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
@@ -2553,7 +2573,7 @@ namespace com.gestapoghost.entertainment.service
                 }
                 ChangeClipsNum(lastClip.Number, clips);
                 ConsoleWrite(webString, clips);
-                ScraperClips(clips, 164, 554);
+                ScraperClips(clips, 164, 352);
             }
             else if (string.Equals(webString, "Treasure Island Media - Tim Fuck"))
             {
@@ -2850,7 +2870,8 @@ namespace com.gestapoghost.entertainment.service
                     System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html", driver.PageSource);
                 }
                 document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.ragingstallion.com\" + _Movie.Title + @"\main.html");
-                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id=\"reactApplication\"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+
                 totalNum = clipNodes.Count;
                 foreach (HtmlNode clipNode in clipNodes)
                 {
@@ -2923,7 +2944,9 @@ namespace com.gestapoghost.entertainment.service
                 }
                 document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.falconstudios.com\" + _Movie.Title + @"\main.html");
                 //*[@id="reactApplication"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]
-                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id=\"reactApplication\"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+
+
                 totalNum = clipNodes.Count;
                 foreach (HtmlNode clipNode in clipNodes)
                 {
@@ -2998,7 +3021,8 @@ namespace com.gestapoghost.entertainment.service
                 }
                 document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.hothouse.com\" + _Movie.Title + @"\main.html");
                 //*[@id="reactApplication"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]
-                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id=\"reactApplication\"]/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+
                 totalNum = clipNodes.Count;
                 foreach (HtmlNode clipNode in clipNodes)
                 {
@@ -3194,6 +3218,78 @@ namespace com.gestapoghost.entertainment.service
                 if (dr == MessageBoxResult.OK)
                 {
                     ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.fistingcentral.com\" + _Movie.Title + @"\", clips);
+                    MessageBox.Show("完成");
+                }
+                else
+                {
+                    MessageBox.Show("失败");
+                }
+            }
+            else if (webString.Contains("www.fistinginferno.com"))
+            {
+                if (!File.Exists(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\main.html"))
+                {
+                    StartChrome();
+                    driver.Url = webString;
+                    Thread.Sleep(5000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(1000);
+                    ((IJavaScriptExecutor)driver).ExecuteScript("window.scrollBy(0,500)");
+                    Thread.Sleep(4000);
+                    if (!Directory.Exists(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title)) Directory.CreateDirectory(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title);
+                    System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\main.html", driver.PageSource);
+                }
+                document = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\main.html");
+                clipNodes = document.DocumentNode.SelectNodes("//*[@id='reactApplication']/div[1]/div[2]/div[2]/div[2]/div[3]/div/div/main/div[2]/div/div/div[2]//div[contains(@class, 'ListingGrid')]");
+                totalNum = clipNodes.Count;
+                foreach (HtmlNode clipNode in clipNodes)
+                {
+                    string clipTitle = "";
+                    string clipImgUrl = "";
+                    string clipUrl = "";
+                    string clipDate = "";
+                    string clipDescription = "";
+                    resultNum++;
+
+
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3") != null) clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/h3").InnerText;
+                    else Console.WriteLine("clipTitle is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//img") != null) clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "//img").GetAttributeValue("src", "").Split("?".ToCharArray())[0].Trim() + "?width=1280&amp;height=720&amp;format=jpg";
+                    else Console.WriteLine("clipImgUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "//a") != null) clipUrl = "https://www.fistinginferno.com" + clipNode.SelectSingleNode(clipNode.XPath + "//a").GetAttributeValue("href", "").Trim();
+                    else Console.WriteLine("clipUrl is null");
+                    if (clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]") != null) clipDate = clipNode.SelectSingleNode(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[3]/div[1]/div[1]/div[2]/span[1]").InnerText;
+                    else Console.WriteLine("clipDate is null");
+
+                    if (clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a") != null)
+                    {
+                        List<string> _Actors = new List<string>();
+                        foreach (HtmlNode actorNode in clipNode.SelectNodes(clipNode.XPath + "/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/a")) _Actors.Add(actorNode.InnerText);
+                        clipDescription += string.Join(", ", _Actors);
+                        clipDescription += "\n\n";
+                    }
+                    else Console.WriteLine("Star is null");
+
+                    if (!File.Exists(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html"))
+                    {
+                        StartChrome();
+                        driver.Url = clipUrl;
+                        Thread.Sleep(10000);
+                        System.IO.File.WriteAllText(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html", driver.PageSource);
+                    }
+                    HtmlDocument clipDocument = new HtmlWeb().Load(@"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\" + (totalNum - resultNum + 1).ToString() + ".html");
+                    if (clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]") != null) clipDescription += clipDocument.DocumentNode.SelectSingleNode("//div[contains(@class, 'Paragraph')]").InnerText.Trim().Replace("&amp;", "&").Replace("&#039;", "'");
+                    else Console.WriteLine("clipDescription is null");
+                    clips.Add(new string[] { (totalNum - resultNum + 1).ToString(), clipTitle, clipImgUrl, clipUrl, clipDate, clipDescription });
+
+                }
+                ConsoleWrite(webString, clips);
+
+
+                MessageBoxResult dr = MessageBox.Show("数据完好？", "提示", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (dr == MessageBoxResult.OK)
+                {
+                    ScraperMovieScenes(_Company, _Series, _Movie, @"D:\VideoTemp\html\" + @"www.fistinginferno.com\" + _Movie.Title + @"\", clips);
                     MessageBox.Show("完成");
                 }
                 else
