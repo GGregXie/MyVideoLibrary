@@ -1137,6 +1137,7 @@ namespace com.gestapoghost.entertainment.service
 
 
 
+
                     MessageBox.Show("更新完毕");
                 }
                 else
@@ -1192,7 +1193,7 @@ namespace com.gestapoghost.entertainment.service
             {
                 HtmlWeb htmlweb = new HtmlWeb();
                 htmlweb.OverrideEncoding = Encoding.UTF8;
-                document = htmlweb.Load(@"d:\1.html");
+                document = htmlweb.Load(@"D:\VideoTemp\html\test.html");
                 clipNodes = document.DocumentNode.SelectNodes("//div[contains(@class, 'mbsc-card-content')]");
 
                 int i = 0;
@@ -1205,6 +1206,43 @@ namespace com.gestapoghost.entertainment.service
                     if (clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-text-content')]") != null) title = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-text-content')]").InnerText.Trim();
                     if (clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-video-runtime')]") != null) runtime = clipNode.SelectSingleNode(clipNode.XPath + "//div[contains(@class, 'post-video-runtime')]").InnerText.Trim();
 
+
+                    if (runtime.Contains("minutes"))
+                    {
+                        Console.WriteLine(System.Convert.ToInt32(runtime.Split(",".ToCharArray())[0].Replace("Runtime:  ", "").Replace(" minutes", "").Trim())*60);
+
+                        int num1 = System.Convert.ToInt32(runtime.Split(",".ToCharArray())[0].Replace("Runtime:  ", "").Replace(" minutes", "").Trim());
+                        int num2 = 0;
+
+                        if (runtime.Split(",".ToCharArray()).Length > 1)
+                        { 
+                            num2 = System.Convert.ToInt32(runtime.Split(",".ToCharArray())[1].Replace(" seconds", ""));
+                        }
+                        if (num2 >= 0 && num2 < 10)
+                        {
+                            runtime = "" + num1 + ":0" + num2;
+                        }
+                        else
+                        {
+                            runtime = "" + num1 + ":" + num2;
+                        }
+                    }
+                    else
+                    {
+                        if (runtime.Contains("seconds")) {
+                            Console.WriteLine(runtime);
+                            int num2 = System.Convert.ToInt32(runtime.Replace("seconds", "").Replace("Runtime:", "").Trim());
+
+                            if (num2 >= 0 && num2 < 10)
+                            {
+                                runtime = "00" + ":0" + num2;
+                            }
+                            else
+                            {
+                                runtime = "00" + ":" + num2;
+                            }
+                        }
+                    }
 
                     using (StreamWriter sw = new StreamWriter(@"d:\2.txt", true))
                     {
@@ -2819,15 +2857,14 @@ namespace com.gestapoghost.entertainment.service
             {
                 Thread th = new Thread(delegate ()
                 {
-                    HtmlDocument _Document = new HtmlWeb().Load("https://www.timtales.com/videos/list/1");
-                    foreach (HtmlNode clipNode in _Document.DocumentNode.SelectNodes("//div[contains(@class, 'video-item video-item-odd') or contains(@class, 'video-item video-item-even')]"))
+                    document = new HtmlWeb().Load(@"D:\VideoTemp\html\test.html");
+                    ///html/body/div[7]/div[13]/div/div/div[56]/div[15]
+                    foreach (HtmlNode clipNode in document.DocumentNode.SelectNodes("//div[contains(@class, 'jffPostClass video AccessControl-Subscribers mbsc-comp mbsc-card mbsc-form mbsc-no-touch mbsc-jffdark mbsc-ios mbsc-ltr')]"))
                     {
-                        string clipTitle = clipNode.SelectSingleNode(clipNode.XPath + "/h2").InnerText.Trim().Replace("&amp;", "&");
-                        string clipImgUrl = clipNode.SelectSingleNode(clipNode.XPath + "/div").GetAttributeValue("style", "").Replace("background-image: url('", "").Replace("')", "");
-                        string clipUrl = "https://www.timtales.com" + clipNode.SelectSingleNode(clipNode.XPath + "/div/a").GetAttributeValue("href", "").Trim();
-                        string clipDate = "";
-                        string clipDescription = "";
-                        Console.WriteLine("title: " + clipTitle);
+                        string clipStr1 = clipNode.SelectSingleNode("//div[contains(@class, 'post-video-runtime')]").InnerText;
+                        string clipStr2 = clipNode.SelectSingleNode("//div[contains(@class, 'post-text-content')]").InnerText;
+                        Console.WriteLine("str1: " + clipStr1);
+                        Console.WriteLine("str2: " + clipStr2);
                     }
 
                 });
