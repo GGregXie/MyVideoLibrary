@@ -16,7 +16,7 @@ using System.Windows;
 namespace com.gestapoghost.entertainment.xaml.main
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// 主界面
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
